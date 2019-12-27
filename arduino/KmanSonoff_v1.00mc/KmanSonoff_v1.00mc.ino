@@ -60,79 +60,90 @@ unsigned long TTasks;
 const String mqttStatTopic = String(mqttBaseTopic) + "/stat";
 const String mqttDebugTopic = String(mqttBaseTopic) + "/debug";
 const String mqttHeartbeatTopic = String(mqttBaseTopic) + "/heartbeat";
+
 #ifdef CH_1
-  bool sendStatus1 = false;
-  int  SS1;
-  unsigned long count1 = 0;
-  Ticker btn_timer1;
+bool sendStatus1 = false;
+int  SS1;
+unsigned long count1 = 0;
+Ticker btn_timer1;
 #endif
+
 #ifdef CH_2
-  bool sendStatus2 = false;
-  int  SS2;
-  unsigned long count2 = 0;
-  Ticker btn_timer2;
+bool sendStatus2 = false;
+int  SS2;
+unsigned long count2 = 0;
+Ticker btn_timer2;
 #endif
+
 #ifdef CH_3
-  bool sendStatus3 = false;
-  int  SS3;
-  unsigned long count3 = 0;
-  Ticker btn_timer3;
+bool sendStatus3 = false;
+int  SS3;
+unsigned long count3 = 0;
+Ticker btn_timer3;
 #endif
+
 #ifdef CH_4
-  bool sendStatus4 = false;
-  int  SS4;
-  unsigned long count4 = 0;
-  Ticker btn_timer4;
+bool sendStatus4 = false;
+int  SS4;
+unsigned long count4 = 0;
+Ticker btn_timer4;
 #endif
+
 extern "C" {
   #include "user_interface.h"
 }
+
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient, mqttServer, mqttPort);
 
 void callback(const MQTT::Publish& pub) {
   if (pub.payload_string() == "stat") {
   }
+
   #ifdef CH_1
-    else if (pub.payload_string() == "1on") {
-      digitalWrite(L_1, HIGH);
-      sendStatus1 = true;
-    }
-    else if (pub.payload_string() == "1off") {
-      digitalWrite(L_1, LOW);
-      sendStatus1 = true;
-    }
+  else if (pub.payload_string() == "1on") {
+    digitalWrite(L_1, HIGH);
+    sendStatus1 = true;
+  }
+  else if (pub.payload_string() == "1off") {
+    digitalWrite(L_1, LOW);
+    sendStatus1 = true;
+  }
   #endif
+
   #ifdef CH_2
-    else if (pub.payload_string() == "2on") {
-      digitalWrite(L_2, HIGH);
-      sendStatus2 = true;
-    }
-    else if (pub.payload_string() == "2off") {
-      digitalWrite(L_2, LOW);
-      sendStatus2 = true;
-    }
+  else if (pub.payload_string() == "2on") {
+    digitalWrite(L_2, HIGH);
+    sendStatus2 = true;
+  }
+  else if (pub.payload_string() == "2off") {
+    digitalWrite(L_2, LOW);
+    sendStatus2 = true;
+  }
   #endif
+
   #ifdef CH_3
-    else if (pub.payload_string() == "3on") {
-      digitalWrite(L_3, HIGH);
-      sendStatus3 = true;
-    }
-    else if (pub.payload_string() == "3off") {
-      digitalWrite(L_3, LOW);
-      sendStatus3 = true;
-    }
+  else if (pub.payload_string() == "3on") {
+    digitalWrite(L_3, HIGH);
+    sendStatus3 = true;
+  }
+  else if (pub.payload_string() == "3off") {
+    digitalWrite(L_3, LOW);
+    sendStatus3 = true;
+  }
   #endif
+
   #ifdef CH_4
-    else if (pub.payload_string() == "4on") {
-      digitalWrite(L_4, HIGH);
-      sendStatus4 = true;
-    }
-    else if (pub.payload_string() == "4off") {
-      digitalWrite(L_4, LOW);
-      sendStatus4 = true;
-    }
+  else if (pub.payload_string() == "4on") {
+    digitalWrite(L_4, HIGH);
+    sendStatus4 = true;
+  }
+  else if (pub.payload_string() == "4off") {
+    digitalWrite(L_4, LOW);
+    sendStatus4 = true;
+  }
   #endif
+
   else if (pub.payload_string() == "reset") {
     requestRestart = true;
   }
@@ -145,46 +156,51 @@ void setup() {
   sprintf(ESP_CHIP_ID, "%06X", ESP.getChipId());
   sprintf(UID, HOST_PREFIX, ESP_CHIP_ID);
   EEPROM.begin(8);
+
   #ifdef CH_1
-    pinMode(B_1, INPUT);
-    pinMode(L_1, OUTPUT);
-    digitalWrite(L_1, LOW);
-    SS1 = EEPROM.read(0);
-    if (rememberRelayState1 && SS1 == 1) {
-      digitalWrite(L_1, HIGH);
-    }
-    btn_timer1.attach(0.05, button1);
+  pinMode(B_1, INPUT);
+  pinMode(L_1, OUTPUT);
+  digitalWrite(L_1, LOW);
+  SS1 = EEPROM.read(0);
+  if (rememberRelayState1 && SS1 == 1) {
+    digitalWrite(L_1, HIGH);
+  }
+  btn_timer1.attach(0.05, button1);
   #endif
+
   #ifdef CH_2
-    pinMode(B_2, INPUT);
-    pinMode(L_2, OUTPUT);
-    digitalWrite(L_2, LOW);
-    SS2 = EEPROM.read(1);
-    if (rememberRelayState2 && SS2 == 1) {
-      digitalWrite(L_2, HIGH);
-    }
-    btn_timer2.attach(0.05, button2);
+  pinMode(B_2, INPUT);
+  pinMode(L_2, OUTPUT);
+  digitalWrite(L_2, LOW);
+  SS2 = EEPROM.read(1);
+  if (rememberRelayState2 && SS2 == 1) {
+    digitalWrite(L_2, HIGH);
+  }
+  btn_timer2.attach(0.05, button2);
   #endif
+
   #ifdef CH_3
-    pinMode(B_3, INPUT);
-    pinMode(L_3, OUTPUT);
-    digitalWrite(L_3, LOW);
-    SS3 = EEPROM.read(2);
-    if (rememberRelayState3 && SS3 == 1) {
-      digitalWrite(L_3, HIGH);
-    }
-    btn_timer3.attach(0.05, button3);
+  pinMode(B_3, INPUT);
+  pinMode(L_3, OUTPUT);
+  digitalWrite(L_3, LOW);
+  SS3 = EEPROM.read(2);
+  if (rememberRelayState3 && SS3 == 1) {
+    digitalWrite(L_3, HIGH);
+  }
+  btn_timer3.attach(0.05, button3);
   #endif
+
   #ifdef CH_4
-    pinMode(B_4, INPUT);
-    pinMode(L_4, OUTPUT);
-    digitalWrite(L_4, LOW);
-    SS4 = EEPROM.read(3);
-    if (rememberRelayState4 && SS4 == 1) {
-      digitalWrite(L_4, HIGH);
-    }
-    btn_timer4.attach(0.05, button4);
+  pinMode(B_4, INPUT);
+  pinMode(L_4, OUTPUT);
+  digitalWrite(L_4, LOW);
+  SS4 = EEPROM.read(3);
+  if (rememberRelayState4 && SS4 == 1) {
+    digitalWrite(L_4, HIGH);
+  }
+  btn_timer4.attach(0.05, button4);
   #endif
+
   mqttClient.set_callback(callback);
   WiFi.mode(WIFI_STA);
   WiFi.hostname(UID);
@@ -275,64 +291,67 @@ void blinkLED(int pin, int duration, int n) {
 }
 
 #ifdef CH_1
-  void button1() {
-    if (!digitalRead(B_1)) {
-      count1++;
-    }
-    else {
-      if (count1 > 1 && count1 <= 40) {
-        digitalWrite(L_1, !digitalRead(L_1));
-       sendStatus1 = true;
-      }
-      else if (count1 >40){
-        Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
-        requestRestart = true;
-      }
-      count1=0;
-    }
+void button1() {
+  if (!digitalRead(B_1)) {
+    count1++;
   }
+  else {
+    if (count1 > 1 && count1 <= 40) {
+      digitalWrite(L_1, !digitalRead(L_1));
+      sendStatus1 = true;
+    }
+    else if (count1 >40){
+      Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
+      requestRestart = true;
+    }
+    count1 = 0;
+  }
+}
 #endif
+
 #ifdef CH_2
-  void button2() {
-    if (!digitalRead(B_2)) {
-      count2++;
-    }
-    else {
-      if (count2 > 1 && count2 <= 40) {
-        digitalWrite(L_2, !digitalRead(L_2));
-        sendStatus2 = true;
-      }
-      count2=0;
-    }
+void button2() {
+  if (!digitalRead(B_2)) {
+    count2++;
   }
+  else {
+    if (count2 > 1 && count2 <= 40) {
+      digitalWrite(L_2, !digitalRead(L_2));
+      sendStatus2 = true;
+    }
+    count2 = 0;
+  }
+}
 #endif
+
 #ifdef CH_3
-  void button3() {
-    if (!digitalRead(B_3)) {
-     count3++;
-    }
-    else {
-      if (count3 > 1 && count3 <= 40) {
-        digitalWrite(L_3, !digitalRead(L_3));
-        sendStatus3 = true;
-      }
-      count3=0;
-    }
+void button3() {
+  if (!digitalRead(B_3)) {
+    count3++;
   }
+  else {
+    if (count3 > 1 && count3 <= 40) {
+      digitalWrite(L_3, !digitalRead(L_3));
+      sendStatus3 = true;
+    }
+    count3 = 0;
+  }
+}
 #endif
+
 #ifdef CH_4
-  void button4() {
-    if (!digitalRead(B_4)) {
-      count4++;
-    }
-    else {
-      if (count4 > 1 && count4 <= 40) {
-        digitalWrite(L_4, !digitalRead(L_4));
-        sendStatus4 = true;
-      }
-      count4=0;
-    }
+void button4() {
+  if (!digitalRead(B_4)) {
+    count4++;
   }
+  else {
+    if (count4 > 1 && count4 <= 40) {
+      digitalWrite(L_4, !digitalRead(L_4));
+      sendStatus4 = true;
+    }
+    count4 = 0;
+  }
+}
 #endif
 
 void checkConnection() {
@@ -353,85 +372,89 @@ void checkConnection() {
 
 void checkStatus() {
   #ifdef CH_1
-    if (sendStatus1) {
-      if(digitalRead(L_1) == LOW)  {
-        if (rememberRelayState1) {
-          EEPROM.write(0, 0);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "1off").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 1 . . . . . . . . . . . . . . . . . . OFF");
-      } else {
-        if (rememberRelayState1) {
-          EEPROM.write(0, 1);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "1on").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 1 . . . . . . . . . . . . . . . . . . ON");
+  if (sendStatus1) {
+    if(digitalRead(L_1) == LOW)  {
+      if (rememberRelayState1) {
+        EEPROM.write(0, 0);
+        EEPROM.commit();
       }
-      sendStatus1 = false;
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "1off").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 1 . . . . . . . . . . . . . . . . . . OFF");
+    } else {
+      if (rememberRelayState1) {
+        EEPROM.write(0, 1);
+        EEPROM.commit();
+      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "1on").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 1 . . . . . . . . . . . . . . . . . . ON");
     }
+    sendStatus1 = false;
+  }
   #endif
+
   #ifdef CH_2
-    if (sendStatus2) {
-      if(digitalRead(L_2) == LOW)  {
-        if (rememberRelayState2) {
-          EEPROM.write(1, 0);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "2off").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 2 . . . . . . . . . . . . . . . . . . OFF");
-      } else {
-        if (rememberRelayState2) {
-          EEPROM.write(1, 1);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "2on").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 2 . . . . . . . . . . . . . . . . . . ON");
+  if (sendStatus2) {
+    if(digitalRead(L_2) == LOW)  {
+      if (rememberRelayState2) {
+        EEPROM.write(1, 0);
+        EEPROM.commit();
       }
-      sendStatus2 = false;
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "2off").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 2 . . . . . . . . . . . . . . . . . . OFF");
+    } else {
+      if (rememberRelayState2) {
+        EEPROM.write(1, 1);
+        EEPROM.commit();
+      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "2on").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 2 . . . . . . . . . . . . . . . . . . ON");
     }
+    sendStatus2 = false;
+  }
   #endif
+
   #ifdef CH_3
-    if (sendStatus3) {
-      if(digitalRead(L_3) == LOW)  {
-        if (rememberRelayState3) {
-          EEPROM.write(2, 0);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "3off").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 3 . . . . . . . . . . . . . . . . . . OFF");
-      } else {
-        if (rememberRelayState3) {
-          EEPROM.write(2, 1);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "3on").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 3 . . . . . . . . . . . . . . . . . . ON");
+  if (sendStatus3) {
+    if(digitalRead(L_3) == LOW)  {
+      if (rememberRelayState3) {
+        EEPROM.write(2, 0);
+        EEPROM.commit();
       }
-      sendStatus3 = false;
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "3off").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 3 . . . . . . . . . . . . . . . . . . OFF");
+    } else {
+      if (rememberRelayState3) {
+        EEPROM.write(2, 1);
+        EEPROM.commit();
+      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "3on").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 3 . . . . . . . . . . . . . . . . . . ON");
     }
+    sendStatus3 = false;
+  }
   #endif
+
   #ifdef CH_4
-    if (sendStatus4) {
-      if(digitalRead(L_4) == LOW)  {
-        if (rememberRelayState4) {
-          EEPROM.write(3, 0);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "4off").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 4 . . . . . . . . . . . . . . . . . . OFF");
-      } else {
-        if (rememberRelayState4) {
-          EEPROM.write(3, 1);
-          EEPROM.commit();
-        }
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "4on").set_retain(mqttRetain).set_qos(QOS));
-        Serial.println("Relay 4 . . . . . . . . . . . . . . . . . . ON");
+  if (sendStatus4) {
+    if(digitalRead(L_4) == LOW)  {
+      if (rememberRelayState4) {
+        EEPROM.write(3, 0);
+        EEPROM.commit();
       }
-      sendStatus4 = false;
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "4off").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 4 . . . . . . . . . . . . . . . . . . OFF");
+    } else {
+      if (rememberRelayState4) {
+        EEPROM.write(3, 1);
+        EEPROM.commit();
+      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "4on").set_retain(mqttRetain).set_qos(QOS));
+      Serial.println("Relay 4 . . . . . . . . . . . . . . . . . . ON");
     }
+    sendStatus4 = false;
+  }
   #endif
+
   if (requestRestart) {
     blinkLED(LED, 400, 4);
     ESP.restart();

@@ -60,7 +60,7 @@ int lastWallSwitch = 1;
 #endif
 int lastRelayState;
 long rssi;
-unsigned long TTasks1;
+unsigned long TasksTimer;
 unsigned long count = 0;
 const String mqttStatTopic = String(mqttBaseTopic) + "/stat";
 const String mqttDebugTopic = String(mqttBaseTopic) + "/debug";
@@ -174,13 +174,8 @@ void setup() {
       mqttClient.subscribe(mqttBaseTopic);
       blinkLED(LED, 40, 8);
       #ifdef ORIG
-      if(digitalRead(L_1) == HIGH)  {
-        digitalWrite(LED, LOW);
-      } else {
-        digitalWrite(LED, HIGH);
-      }
-      #endif
-      #ifdef TH
+      digitalWrite(LED, !digitalRead(L_1));
+      #elif TH
       digitalWrite(LED, LOW);
       #endif
     }
@@ -201,7 +196,7 @@ void loop() {
   ArduinoOTA.handle();
   if (OTAupdate == false) {
     mqttClient.loop();
-    timedTasks1();
+    timedTasks();
     checkStatus();
     #ifdef TEMP
     if (tempReport) {
@@ -235,7 +230,7 @@ void button() {
       digitalWrite(L_1, !digitalRead(L_1));
       sendStatus = true;
     }
-    else if (count >40){
+    else if (count >40) {
       Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
       requestRestart = true;
     }
@@ -262,22 +257,10 @@ void checkConnection() {
 void checkStatus() {
   if (sendStatus) {
     #ifdef ORIG
-    if(digitalRead(LED) == LOW)  {
-      if (rememberRelayState) {
-        EEPROM.write(0, 1);
-      }
-      mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain(mqttRetain).set_qos(QOS));
-      Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
-    } else {
-      if (rememberRelayState) {
-        EEPROM.write(0, 0);
-      }
-      mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain(mqttRetain).set_qos(QOS));
-      Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
-    }
-    #endif
-    #ifdef TH
+    if(digitalRead(LED) == HIGH) {
+    #elif TH
     if(digitalRead(L_1) == LOW)  {
+    #endif
       if (rememberRelayState) {
         EEPROM.write(0, 0);
       }
@@ -290,7 +273,6 @@ void checkStatus() {
       mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain(mqttRetain).set_qos(QOS));
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     }
-    #endif
     if (rememberRelayState) {
       EEPROM.commit();
     }
@@ -319,15 +301,13 @@ void getTemp() {
   Serial.print("DHT read . . . . . . . . . . . . . . . . . ");
   float dhtH, dhtT, dhtHI;
   char message_buff[60];
+  int ledState;
   dhtH = dht.readHumidity();
   dhtT = dht.readTemperature(UseFahrenheit);
   dhtHI = dht.computeHeatIndex(dhtT, dhtH, UseFahrenheit);
-  if(digitalRead(LED) == LOW)  {
-    blinkLED(LED, 100, 1);
-  } else {
-    blinkLED(LED, 100, 1);
-    digitalWrite(LED, HIGH);
-  }
+  ledState = digitalRead(LED);
+  blinkLED(LED, 100, 1);
+  digitalWrite(LED, ledState);
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
     mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_retain(mqttRetain).set_qos(QOS));
     Serial.println("ERROR");
@@ -351,9 +331,9 @@ void doReport() {
   mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_retain(mqttRetain).set_qos(QOS));
 }
 
-void timedTasks1() {
-  if ((millis() > TTasks1 + (kUpdFreq*60000)) || (millis() < TTasks1)) {
-    TTasks1 = millis();
+void timedTasks() {
+  if ((millis() > TasksTimer + (kUpdFreq*60000)) || (millis() < TasksTimer)) {
+    TasksTimer = millis();
     checkConnection();
     doReport();
     #ifdef TEMP
