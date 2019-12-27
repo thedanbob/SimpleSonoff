@@ -3,16 +3,16 @@
                                             Modify all parameters below to suit you environment
   ======================================================================================================================================
 */
-bool rememberRelayState1 = true;                              // If 'true' remembers the state of relay 1 before power loss.
-bool rememberRelayState2 = true;                              // If 'true' remembers the state of relay 2 before power loss.
-bool rememberRelayState3 = true;                              // If 'true' remembers the state of relay 3 before power loss.
-bool rememberRelayState4 = true;                              // If 'true' remembers the state of relay 4 before power loss.
+const bool rememberRelayState1 = true;                        // Remember the state of relay 1 before power loss.
+const bool rememberRelayState2 = true;                        // Remember the state of relay 2 before power loss.
+const bool rememberRelayState3 = true;                        // Remember the state of relay 3 before power loss.
+const bool rememberRelayState4 = true;                        // Remember the state of relay 4 before power loss.
                                                               // Each relay will be OFF evey time power is applied when set to 'false'
 
 const bool mqttRetain = false;                                // Retain mqtt messages
-int kUpdFreq = 1;                                             // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
+const int kUpdFreq = 1;                                       // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
 int kRetries = 10;                                            // WiFi retry count (10 default). Increase if not connecting to your WiFi.
-int QOS = 0;                                                  // QOS level for all mqtt messages. (0 or 1)
+const int QOS = 0;                                            // QOS level for all mqtt messages. (0 or 1)
 
 #define CH_1                                                  // Channel 1 (Default single channel. Do not comment out)
 //#define CH_2                                                  // Channel 2 (Uncomment to use 2nd Channel)

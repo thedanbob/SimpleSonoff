@@ -3,13 +3,13 @@
                                             Modify all parameters below to suit you environment
   ===========================================================================================================================================
 */
-bool rememberRelayState = true;                               // If 'true' remembers the state of the relay before power loss otherwise
+const bool rememberRelayState = true;                         // If 'true' remembers the state of the relay before power loss otherwise
                                                               // load will be OFF evey time power is applied. Set retain below to 0 if true.
 
 const bool mqttRetain = false;                                // Retain mqtt messages
-int kUpdFreq = 1;                                             // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
+const int kUpdFreq = 1;                                       // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
 int kRetries = 10;                                            // WiFi retry count (10 default). Increase if not connecting to your WiFi.
-int QOS = 0;                                                  // QOS level for all mqtt messages. (0 or 1)
+const int QOS = 0;                                            // QOS level for all mqtt messages. (0 or 1)
 
 #define NONE                                                  // Set to NONE, TEMP, or WS (Cannot be blank)
                                                               // NONE for standard Sonoff relay only ON / OFF (default)
