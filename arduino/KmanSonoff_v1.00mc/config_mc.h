@@ -10,7 +10,7 @@ const bool rememberRelayState4 = true;                        // Remember the st
                                                               // Each relay will be OFF evey time power is applied when set to 'false'
 
 const bool mqttRetain = false;                                // Retain mqtt messages
-const int kUpdFreq = 1;                                       // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
+const int connectUpdateFreq = 1;                                       // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
 int kRetries = 10;                                            // WiFi retry count (10 default). Increase if not connecting to your WiFi.
 const int QOS = 0;                                            // QOS level for all mqtt messages. (0 or 1)
 

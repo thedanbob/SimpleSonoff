@@ -32,8 +32,7 @@
 #endif
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
+#include <WiFiClient.h>
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
@@ -54,10 +53,6 @@ bool requestRestart = false;
 bool tempReport = false;
 char ESP_CHIP_ID[8];
 char UID[16];
-#ifdef WS
-int wallSwitch = 1;
-int lastWallSwitch = 1;
-#endif
 int lastRelayState;
 long rssi;
 unsigned long TasksTimer;
@@ -65,13 +60,17 @@ unsigned long count = 0;
 const String mqttStatTopic = String(mqttBaseTopic) + "/stat";
 const String mqttDebugTopic = String(mqttBaseTopic) + "/debug";
 const String mqttHeartbeatTopic = String(mqttBaseTopic) + "/heartbeat";
+
+#ifdef WS
+int wallSwitch = 1;
+int lastWallSwitch = 1;
+#endif
+
 #ifdef TEMP
 DHT dht(OPT_PIN, DHTTYPE, 11);
 const String mqttTempTopic = String(mqttTempTopic) + "/temp";
 #endif
-extern "C" {
-  #include "user_interface.h"
-}
+
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient, mqttServer, mqttPort);
 Ticker btn_timer;
@@ -101,9 +100,11 @@ void setup() {
   pinMode(LED, OUTPUT);
   pinMode(L_1, OUTPUT);
   pinMode(B_1, INPUT);
+
   #ifdef WS
   pinMode(OPT_PIN, INPUT_PULLUP);
   #endif
+
   digitalWrite(LED, HIGH);
   digitalWrite(L_1, LOW);
   Serial.begin(115200);
@@ -111,17 +112,20 @@ void setup() {
   sprintf(UID, HOST_PREFIX, ESP_CHIP_ID);
   EEPROM.begin(8);
   lastRelayState = EEPROM.read(0);
+
   if (rememberRelayState && lastRelayState == 1) {
     #ifdef ORIG
     digitalWrite(LED, LOW);
     #endif
     digitalWrite(L_1, HIGH);
   }
+
   btn_timer.attach(0.05, button);
   mqttClient.set_callback(callback);
   WiFi.mode(WIFI_STA);
   WiFi.hostname(UID);
   WiFi.begin(ssid, pass);
+
   ArduinoOTA.setHostname(UID);
   ArduinoOTA.onStart([]() {
     OTAupdate = true;
@@ -150,23 +154,30 @@ void setup() {
     else if (error == OTA_END_ERROR) Serial.println(". . . . . . . . . . . . . . . End Failed");
   });
   ArduinoOTA.begin();
+
   Serial.println(HEADER);
   Serial.print("\nUID: ");
   Serial.print(UID);
   Serial.print("\nConnecting to "); Serial.print(ssid); Serial.print(" Wifi");
-  while ((WiFi.status() != WL_CONNECTED) && kRetries --) {
+
+  for (int r = 0; r < connectRetries; r++) {
+    if (WiFi.status() == WL_CONNECTED) break;
     delay(500);
     Serial.print(" .");
   }
+
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(" DONE");
     Serial.print("IP Address is: "); Serial.println(WiFi.localIP());
     Serial.print("Connecting to ");Serial.print(mqttServer);Serial.print(" Broker . .");
     delay(500);
-    while (!mqttClient.connect(MQTT::Connect(UID).set_keepalive(90).set_auth(mqttUser, mqttPass)) && kRetries --) {
+
+    for (int r = 0; r < connectRetries; r++) {
+      if (mqttClient.connect(MQTT::Connect(UID).set_keepalive(90).set_auth(mqttUser, mqttPass))) break;
       Serial.print(" .");
       delay(1000);
     }
+
     if(mqttClient.connected()) {
       Serial.println(" DONE");
       Serial.println("\n----------------------------  Logs  ----------------------------");
@@ -194,15 +205,17 @@ void setup() {
 
 void loop() {
   ArduinoOTA.handle();
-  if (OTAupdate == false) {
+  if (!OTAupdate) {
     mqttClient.loop();
     timedTasks();
     checkStatus();
+
     #ifdef TEMP
     if (tempReport) {
       getTemp();
     }
     #endif
+
     #ifdef WS
     checkWallSwitch();
     #endif
@@ -210,7 +223,7 @@ void loop() {
 }
 
 void blinkLED(int pin, int duration, int n) {
-  for(int i=0; i<n; i++)  {
+  for(int i = 0; i < n; i++)  {
     digitalWrite(pin, HIGH);
     delay(duration);
     digitalWrite(pin, LOW);
@@ -234,7 +247,7 @@ void button() {
       Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
       requestRestart = true;
     }
-    count=0;
+    count = 0;
   }
 }
 
@@ -278,6 +291,7 @@ void checkStatus() {
     }
     sendStatus = false;
   }
+
   if (requestRestart) {
     blinkLED(LED, 400, 4);
     ESP.restart();
@@ -302,18 +316,21 @@ void getTemp() {
   float dhtH, dhtT, dhtHI;
   char message_buff[60];
   int ledState;
+
   dhtH = dht.readHumidity();
   dhtT = dht.readTemperature(UseFahrenheit);
   dhtHI = dht.computeHeatIndex(dhtT, dhtH, UseFahrenheit);
   ledState = digitalRead(LED);
   blinkLED(LED, 100, 1);
   digitalWrite(LED, ledState);
+
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
     mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_retain(mqttRetain).set_qos(QOS));
     Serial.println("ERROR");
     tempReport = false;
     return;
   }
+
   String pubString = "{\"Temp\": "+String(dhtT)+", "+"\"Humidity\": "+String(dhtH)+", "+"\"HeatIndex\": "+String(dhtHI) + "}";
   pubString.toCharArray(message_buff, pubString.length()+1);
   mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_retain(mqttRetain).set_qos(QOS));
@@ -332,10 +349,11 @@ void doReport() {
 }
 
 void timedTasks() {
-  if ((millis() > TasksTimer + (kUpdFreq*60000)) || (millis() < TasksTimer)) {
+  if ((millis() > TasksTimer + (connectUpdateFreq*60000)) || (millis() < TasksTimer)) {
     TasksTimer = millis();
     checkConnection();
     doReport();
+
     #ifdef TEMP
     tempReport = true;
     #endif

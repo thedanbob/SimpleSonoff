@@ -471,7 +471,7 @@ void doReport() {
 }
 
 void timedTasks() {
-  if ((millis() > TTasks + (kUpdFreq*60000)) || (millis() < TTasks)) {
+  if ((millis() > TTasks + (connectUpdateFreq*60000)) || (millis() < TTasks)) {
     TTasks = millis();
     doReport();
     checkConnection();
