@@ -356,10 +356,10 @@ void checkStatus() {
           EEPROM.write(0, 0);
           EEPROM.commit();
         }
-        if (kRetain == 0) {
-          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "1off").set_qos(QOS));
-        } else {
+        if (mqttRetain) {
           mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "1off").set_retain().set_qos(QOS));
+        } else {
+          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "1off").set_qos(QOS));
         }
         Serial.println("Relay 1 . . . . . . . . . . . . . . . . . . OFF");
       } else {
@@ -367,10 +367,10 @@ void checkStatus() {
           EEPROM.write(0, 1);
           EEPROM.commit();
         }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "1on").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "1on").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "1on").set_qos(QOS));
       }
       Serial.println("Relay 1 . . . . . . . . . . . . . . . . . . ON");
       }
@@ -384,10 +384,10 @@ void checkStatus() {
           EEPROM.write(1, 0);
           EEPROM.commit();
         }
-        if (kRetain == 0) {
-          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "2off").set_qos(QOS));
-        } else {
+        if (mqttRetain) {
           mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "2off").set_retain().set_qos(QOS));
+        } else {
+          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "2off").set_qos(QOS));
         }
         Serial.println("Relay 2 . . . . . . . . . . . . . . . . . . OFF");
       } else {
@@ -395,7 +395,7 @@ void checkStatus() {
           EEPROM.write(1, 1);
           EEPROM.commit();
         }
-      if (kRetain == 0) {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "2on").set_retain().set_qos(QOS));
       } else {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "2on").set_qos(QOS));
@@ -412,10 +412,10 @@ void checkStatus() {
           EEPROM.write(2, 0);
           EEPROM.commit();
         }
-        if (kRetain == 0) {
-          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "3off").set_qos(QOS));
-        } else {
+        if (mqttRetain) {
           mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "3off").set_retain().set_qos(QOS));
+        } else {
+          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "3off").set_qos(QOS));
         }
         Serial.println("Relay 3 . . . . . . . . . . . . . . . . . . OFF");
       } else {
@@ -423,10 +423,10 @@ void checkStatus() {
           EEPROM.write(2, 1);
           EEPROM.commit();
         }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "3on").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "3on").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "3on").set_qos(QOS));
       }
       Serial.println("Relay 3 . . . . . . . . . . . . . . . . . . ON");
       }
@@ -440,10 +440,10 @@ void checkStatus() {
           EEPROM.write(3, 0);
           EEPROM.commit();
         }
-        if (kRetain == 0) {
-          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "4off").set_qos(QOS));
-        } else {
+        if (mqttRetain) {
           mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "4off").set_retain().set_qos(QOS));
+        } else {
+          mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "4off").set_qos(QOS));
         }
         Serial.println("Relay 4 . . . . . . . . . . . . . . . . . . OFF");
       } else {
@@ -451,10 +451,10 @@ void checkStatus() {
           EEPROM.write(3, 1);
           EEPROM.commit();
         }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "4on").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "4on").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "4on").set_qos(QOS));
       }
       Serial.println("Relay 4 . . . . . . . . . . . . . . . . . . ON");
       }
@@ -472,12 +472,12 @@ void doReport() {
   char message_buff[120];
   String pubString = "{\"UID\": "+String(UID)+", "+"\"WiFi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(MQTT_TOPIC)+", "+"\"Ver\": "+String(VER)+"}";
   pubString.toCharArray(message_buff, pubString.length()+1);
-  if (kRetain == 0) {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_qos(QOS));
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_qos(QOS));
-  } else {
+  if (mqttRetain) {
     mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_retain().set_qos(QOS));
     mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_retain().set_qos(QOS));
+  } else {
+    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_qos(QOS));
   }
 }
 

@@ -5,8 +5,8 @@
 */
 bool rememberRelayState = true;                               // If 'true' remembers the state of the relay before power loss otherwise
                                                               // load will be OFF evey time power is applied. Set retain below to 0 if true.
-                                                              
-int kRetain = 0;                                              // Retain mqtt messages (0 for off, 1 for on)
+
+const bool mqttRetain = false;                                // Retain mqtt messages
 int kUpdFreq = 1;                                             // Update frequency in Mintes to check for mqtt connection. Defualt 1 min.
 int kRetries = 10;                                            // WiFi retry count (10 default). Increase if not connecting to your WiFi.
 int QOS = 0;                                                  // QOS level for all mqtt messages. (0 or 1)

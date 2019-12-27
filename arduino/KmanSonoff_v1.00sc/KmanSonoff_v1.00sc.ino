@@ -262,20 +262,20 @@ void checkStatus() {
       if (rememberRelayState) {
         EEPROM.write(0, 1);
       }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     } else {
        if (rememberRelayState) {
         EEPROM.write(0, 0);
       }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
     }
@@ -285,20 +285,20 @@ void checkStatus() {
       if (rememberRelayState) {
         EEPROM.write(0, 0);
       }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
     } else {
       if (rememberRelayState) {
         EEPROM.write(0, 1);
       }
-      if (kRetain == 0) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
-      } else {
+      if (mqttRetain) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_retain().set_qos(QOS));
+      } else {
+        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     }
@@ -341,10 +341,10 @@ void getTemp() {
     digitalWrite(LED, HIGH);
   }
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
-    if (kRetain == 0) {
-      mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug","\"DHT Read Error\"").set_qos(QOS));
-    } else {
+    if (mqttRetain) {
       mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug","\"DHT Read Error\"").set_retain().set_qos(QOS));
+    } else {
+      mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug","\"DHT Read Error\"").set_qos(QOS));
     }
     Serial.println("ERROR");
     tempReport = false;
@@ -352,10 +352,10 @@ void getTemp() {
   }
   String pubString = "{\"Temp\": "+String(dhtT)+", "+"\"Humidity\": "+String(dhtH)+", "+"\"HeatIndex\": "+String(dhtHI) + "}";
   pubString.toCharArray(message_buff, pubString.length()+1);
-  if (kRetain == 0) {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/temp", message_buff).set_qos(QOS));
-  } else {
+  if (mqttRetain) {
     mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/temp", message_buff).set_retain().set_qos(QOS));
+  } else {
+    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/temp", message_buff).set_qos(QOS));
   }
   Serial.println("OK");
   tempReport = false;
@@ -367,12 +367,12 @@ void doReport() {
   char message_buff[120];
   String pubString = "{\"UID\": "+String(UID)+", "+"\"WiFi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(MQTT_TOPIC)+", "+"\"Ver\": "+String(VER)+"}";
   pubString.toCharArray(message_buff, pubString.length()+1);
-  if (kRetain == 0) {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_qos(QOS));
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_qos(QOS));
-  } else {
+  if (mqttRetain) {
     mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_retain().set_qos(QOS));
     mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_retain().set_qos(QOS));
+  } else {
+    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_qos(QOS));
   }
 }
 
