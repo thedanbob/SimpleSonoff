@@ -19,14 +19,14 @@ const int QOS = 0;                                            // QOS level for a
 //#define CH_3                                                  // Channel 3 (Uncomment to use 3rd Channel)
 //#define CH_4                                                  // Channel 4 (Uncomment to use 4th Channel)
 
-#define MQTT_SERVER      "192.168.0.100"                      // Your mqtt server ip address
-#define MQTT_PORT        1883                                 // Your mqtt port
-#define MQTT_TOPIC       "home/sonoff/living_room/1"          // Base mqtt topic
-#define MQTT_USER        "mqtt_user"                          // mqtt username
-#define MQTT_PASS        "mqtt_pass"                          // mqtt password
+const char* mqttServer = "192.168.0.100";                     // Your mqtt server ip address
+const int mqttPort = 1883;                                    // Your mqtt port
+const char* mqttBaseTopic = "home/sonoff/living_room/1";      // Base mqtt topic
+const char* mqttUser = "mqttUser";                           // mqtt username
+const char* mqttPass = "mqttPass";                           // mqtt password
 
-#define WIFI_SSID        "wifissid"                           // Your WiFi ssid
-#define WIFI_PASS        "wifipass"                           // Your WiFi password
+const char* ssid = "wifissid";                                // Your WiFi ssid
+const char* pass = "wifipass";                                // Your WiFi password
 /*
   ======================================================================================================================================
 */

@@ -62,14 +62,18 @@ int lastRelayState;
 long rssi;
 unsigned long TTasks1;
 unsigned long count = 0;
+const String mqttStatTopic = String(mqttBaseTopic) + "/stat";
+const String mqttDebugTopic = String(mqttBaseTopic) + "/debug";
+const String mqttHeartbeatTopic = String(mqttBaseTopic) + "/heartbeat";
 #ifdef TEMP
 DHT dht(OPT_PIN, DHTTYPE, 11);
+const String mqttTempTopic = String(mqttTempTopic) + "/temp";
 #endif
 extern "C" {
   #include "user_interface.h"
 }
 WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient, MQTT_SERVER, MQTT_PORT);
+PubSubClient mqttClient(wifiClient, mqttServer, mqttPort);
 Ticker btn_timer;
 
 void callback(const MQTT::Publish& pub) {
@@ -117,7 +121,7 @@ void setup() {
   mqttClient.set_callback(callback);
   WiFi.mode(WIFI_STA);
   WiFi.hostname(UID);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.begin(ssid, pass);
   ArduinoOTA.setHostname(UID);
   ArduinoOTA.onStart([]() {
     OTAupdate = true;
@@ -149,7 +153,7 @@ void setup() {
   Serial.println(HEADER);
   Serial.print("\nUID: ");
   Serial.print(UID);
-  Serial.print("\nConnecting to "); Serial.print(WIFI_SSID); Serial.print(" Wifi");
+  Serial.print("\nConnecting to "); Serial.print(ssid); Serial.print(" Wifi");
   while ((WiFi.status() != WL_CONNECTED) && kRetries --) {
     delay(500);
     Serial.print(" .");
@@ -157,9 +161,9 @@ void setup() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(" DONE");
     Serial.print("IP Address is: "); Serial.println(WiFi.localIP());
-    Serial.print("Connecting to ");Serial.print(MQTT_SERVER);Serial.print(" Broker . .");
+    Serial.print("Connecting to ");Serial.print(mqttServer);Serial.print(" Broker . .");
     delay(500);
-    while (!mqttClient.connect(MQTT::Connect(UID).set_keepalive(90).set_auth(MQTT_USER, MQTT_PASS)) && kRetries --) {
+    while (!mqttClient.connect(MQTT::Connect(UID).set_keepalive(90).set_auth(mqttUser, mqttPass)) && kRetries --) {
       Serial.print(" .");
       delay(1000);
     }
@@ -167,7 +171,7 @@ void setup() {
       Serial.println(" DONE");
       Serial.println("\n----------------------------  Logs  ----------------------------");
       Serial.println();
-      mqttClient.subscribe(MQTT_TOPIC);
+      mqttClient.subscribe(mqttBaseTopic);
       blinkLED(LED, 40, 8);
       #ifdef ORIG
       if(digitalRead(L_1) == HIGH)  {
@@ -263,9 +267,9 @@ void checkStatus() {
         EEPROM.write(0, 1);
       }
       if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_retain().set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain().set_qos(QOS));
       } else {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     } else {
@@ -273,9 +277,9 @@ void checkStatus() {
         EEPROM.write(0, 0);
       }
       if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_retain().set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain().set_qos(QOS));
       } else {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
     }
@@ -286,9 +290,9 @@ void checkStatus() {
         EEPROM.write(0, 0);
       }
       if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_retain().set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain().set_qos(QOS));
       } else {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
     } else {
@@ -296,9 +300,9 @@ void checkStatus() {
         EEPROM.write(0, 1);
       }
       if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_retain().set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain().set_qos(QOS));
       } else {
-        mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
+        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_qos(QOS));
       }
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     }
@@ -342,9 +346,9 @@ void getTemp() {
   }
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
     if (mqttRetain) {
-      mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug","\"DHT Read Error\"").set_retain().set_qos(QOS));
+      mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_retain().set_qos(QOS));
     } else {
-      mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug","\"DHT Read Error\"").set_qos(QOS));
+      mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_qos(QOS));
     }
     Serial.println("ERROR");
     tempReport = false;
@@ -353,9 +357,9 @@ void getTemp() {
   String pubString = "{\"Temp\": "+String(dhtT)+", "+"\"Humidity\": "+String(dhtH)+", "+"\"HeatIndex\": "+String(dhtHI) + "}";
   pubString.toCharArray(message_buff, pubString.length()+1);
   if (mqttRetain) {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/temp", message_buff).set_retain().set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_retain().set_qos(QOS));
   } else {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/temp", message_buff).set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_qos(QOS));
   }
   Serial.println("OK");
   tempReport = false;
@@ -365,14 +369,14 @@ void getTemp() {
 void doReport() {
   rssi = WiFi.RSSI();
   char message_buff[120];
-  String pubString = "{\"UID\": "+String(UID)+", "+"\"WiFi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(MQTT_TOPIC)+", "+"\"Ver\": "+String(VER)+"}";
+  String pubString = "{\"UID\": "+String(UID)+", "+"\"WiFi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(mqttBaseTopic)+", "+"\"Ver\": "+String(VER)+"}";
   pubString.toCharArray(message_buff, pubString.length()+1);
   if (mqttRetain) {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_retain().set_qos(QOS));
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_retain().set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(mqttDebugTopic, message_buff).set_retain().set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_retain().set_qos(QOS));
   } else {
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/debug", message_buff).set_qos(QOS));
-    mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/heartbeat", "OK").set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(mqttDebugTopic, message_buff).set_qos(QOS));
+    mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_qos(QOS));
   }
 }
 

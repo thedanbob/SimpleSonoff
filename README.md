@@ -48,16 +48,16 @@ Uning the Arduino IDE's Library Manager install the DHT library if you plan on e
 
 **3. Modify the details in the Arduino code (config.h) to your specific details and environment. (THIS IS IMPORTANT)**
 
-To start off, change the "WIFI_SSID, WIFI_PASS, MQTT_SERVER, MQTT_PORT, MQTT_USER, MQTT_PASS in the Arduino code provided to suit your environment.
+To start off, change the ssid, pass, mqttServer, mqttPort, mqttUser, mqttPass constants in the Arduino code provided to suit your environment.
 
-``` bash
-#define MQTT_SERVER     "192.168.0.100"                      // mqtt server
-#define MQTT_PORT       1883                                 // mqtt port
-#define MQTT_TOPIC      "home/sonoff/living_room/1"          // mqtt topic (Must be unique for each Sonoff)
-#define MQTT_USER       "user"                               // mqtt user
-#define MQTT_PASS       "pass"                               // mqtt password
-#define WIFI_SSID       "homewifi"                           // wifi ssid
-#define WIFI_PASS       "homepass"                           // wifi password
+``` c++
+const char* mqttServer = "192.168.0.100";                  // mqtt server
+const int mqttPort = 1883;                                 // mqtt port
+const char* mqttBaseTopic = "home/sonoff/living_room/1";   // mqtt topic (Must be unique for each Sonoff)
+const char* mqttUser = "user";                             // mqtt user
+const char* mqttPass = "pass";                             // mqtt password
+const char* ssid = "homewifi";                             // wifi ssid
+const char* pass = "homepass";                             // wifi password
 ```
 
 Additionally other parameters can be changed in the file at your discretion like whether or not you wish to remember the last relay state, retain mqtt messages, update frequecy for WiFi retries etc. See "config_sc.h or config_mc.h" for all options.
