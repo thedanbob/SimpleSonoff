@@ -48,7 +48,7 @@ Uning the Arduino IDE's Library Manager install the DHT library if you plan on e
 
 **3. Modify the details in the Arduino code (config.h) to your specific details and environment. (THIS IS IMPORTANT)**
 
-To start off, change the "WIFI_SSID, WIFI_PASS, MQTT_SERVER, MQTT_PORT, MQTT_USER, MQTT_PASS in the Arduino code provided to suit your environment. 
+To start off, change the "WIFI_SSID, WIFI_PASS, MQTT_SERVER, MQTT_PORT, MQTT_USER, MQTT_PASS in the Arduino code provided to suit your environment.
 
 ``` bash
 #define MQTT_SERVER     "192.168.0.100"                      // mqtt server
@@ -97,7 +97,7 @@ sensor:
     qos: 1
     unit_of_measurement: "°C"
     value_template: "{{ value_json.Temp }}"
-  
+
   - platform: mqtt
     name: "Living Room Humidity"
     state_topic: "home/sonoff/living_room/1/temp"
@@ -127,7 +127,7 @@ When power is first applied the unit will immediately connect to your WiFi acces
 
 If you've enabled the temperature function, you will see a short single flash to indicate that the temperature & humidity has been published as well.
 
-Press the switch on top to turn on the relay. Press it again to turn it off and watch the status change in HomeAssistant. Toggle the switch in HomeAssistant and the relay & LED will toggle accordingly. If your switch allows for an external wallswitch to be connected and that feature is enable, you should now be able to toggle the status of the Sonoff with the external wallswitch as well. 
+Press the switch on top to turn on the relay. Press it again to turn it off and watch the status change in HomeAssistant. Toggle the switch in HomeAssistant and the relay & LED will toggle accordingly. If your switch allows for an external wallswitch to be connected and that feature is enable, you should now be able to toggle the status of the Sonoff with the external wallswitch as well.
 
 To reset the switch manually, press and hold the switch for more than 4 seconds. (4CH press and hold Relay 1 switch) The switch will respond with 4 long flashes and reboot.
 

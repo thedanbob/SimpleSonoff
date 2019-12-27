@@ -1,6 +1,6 @@
 /*
   Copyright (c) 2017 @KmanOz
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -81,8 +81,8 @@ unsigned long TTasks;
   unsigned long count4 = 0;
   Ticker btn_timer4;
 #endif
-extern "C" { 
-  #include "user_interface.h" 
+extern "C" {
+  #include "user_interface.h"
 }
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient, MQTT_SERVER, MQTT_PORT);
@@ -218,12 +218,12 @@ void setup() {
   Serial.println(HEADER);
   Serial.print("\nUnit ID: ");
   Serial.print(UID);
-  Serial.print("\nConnecting to "); Serial.print(WIFI_SSID); Serial.print(" Wifi"); 
+  Serial.print("\nConnecting to "); Serial.print(WIFI_SSID); Serial.print(" Wifi");
   while ((WiFi.status() != WL_CONNECTED) && kRetries --) {
     delay(500);
     Serial.print(" .");
   }
-  if (WiFi.status() == WL_CONNECTED) {  
+  if (WiFi.status() == WL_CONNECTED) {
     Serial.println(" DONE");
     Serial.print("IP Address is: "); Serial.println(WiFi.localIP());
     Serial.print("Connecting to ");Serial.print(MQTT_SERVER);Serial.print(" Broker . .");
@@ -253,18 +253,18 @@ void setup() {
   }
 }
 
-void loop() { 
+void loop() {
   ArduinoOTA.handle();
-  if (OTAupdate == false) { 
+  if (OTAupdate == false) {
     mqttClient.loop();
     timedTasks();
     checkStatus();
   }
 }
 
-void blinkLED(int pin, int duration, int n) {             
-  for(int i=0; i<n; i++)  {  
-    digitalWrite(pin, HIGH);        
+void blinkLED(int pin, int duration, int n) {
+  for(int i=0; i<n; i++)  {
+    digitalWrite(pin, HIGH);
     delay(duration);
     digitalWrite(pin, LOW);
     delay(duration);
@@ -275,16 +275,16 @@ void blinkLED(int pin, int duration, int n) {
   void button1() {
     if (!digitalRead(B_1)) {
       count1++;
-    } 
+    }
     else {
-      if (count1 > 1 && count1 <= 40) {   
+      if (count1 > 1 && count1 <= 40) {
         digitalWrite(L_1, !digitalRead(L_1));
        sendStatus1 = true;
-      } 
+      }
       else if (count1 >40){
-        Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait"); 
+        Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
         requestRestart = true;
-      } 
+      }
       count1=0;
     }
   }
@@ -293,12 +293,12 @@ void blinkLED(int pin, int duration, int n) {
   void button2() {
     if (!digitalRead(B_2)) {
       count2++;
-    } 
+    }
     else {
-      if (count2 > 1 && count2 <= 40) {   
+      if (count2 > 1 && count2 <= 40) {
         digitalWrite(L_2, !digitalRead(L_2));
         sendStatus2 = true;
-      } 
+      }
       count2=0;
     }
   }
@@ -307,12 +307,12 @@ void blinkLED(int pin, int duration, int n) {
   void button3() {
     if (!digitalRead(B_3)) {
      count3++;
-    } 
+    }
     else {
-      if (count3 > 1 && count3 <= 40) {   
+      if (count3 > 1 && count3 <= 40) {
         digitalWrite(L_3, !digitalRead(L_3));
         sendStatus3 = true;
-      } 
+      }
       count3=0;
     }
   }
@@ -321,12 +321,12 @@ void blinkLED(int pin, int duration, int n) {
   void button4() {
     if (!digitalRead(B_4)) {
       count4++;
-    } 
+    }
     else {
-      if (count4 > 1 && count4 <= 40) {   
+      if (count4 > 1 && count4 <= 40) {
         digitalWrite(L_4, !digitalRead(L_4));
         sendStatus4 = true;
-      } 
+      }
       count4=0;
     }
   }
@@ -336,13 +336,13 @@ void checkConnection() {
   if (WiFi.status() == WL_CONNECTED)  {
     if (mqttClient.connected()) {
       Serial.println("mqtt broker connection . . . . . . . . . . OK");
-    } 
+    }
     else {
       Serial.println("mqtt broker connection . . . . . . . . . . LOST");
       requestRestart = true;
     }
   }
-  else { 
+  else {
     Serial.println("WiFi connection . . . . . . . . . . LOST");
     requestRestart = true;
   }
@@ -482,10 +482,9 @@ void doReport() {
 }
 
 void timedTasks() {
-  if ((millis() > TTasks + (kUpdFreq*60000)) || (millis() < TTasks)) { 
+  if ((millis() > TTasks + (kUpdFreq*60000)) || (millis() < TTasks)) {
     TTasks = millis();
     doReport();
     checkConnection();
   }
 }
-

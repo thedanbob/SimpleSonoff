@@ -20,4 +20,3 @@
   # Set unit_of_measurement to "°C" or "°F" to match the temperature scale chosen in config_sc.h
   unit_of_measurement: "°C"
   value_template: "{{ value_json.HeatIndex | round(1) }}"
-  

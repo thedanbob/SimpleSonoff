@@ -1,6 +1,6 @@
 /*
   Copyright (c) 2017 @KmanOz
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -65,8 +65,8 @@ unsigned long count = 0;
 #ifdef TEMP
 DHT dht(OPT_PIN, DHTTYPE, 11);
 #endif
-extern "C" { 
-  #include "user_interface.h" 
+extern "C" {
+  #include "user_interface.h"
 }
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient, MQTT_SERVER, MQTT_PORT);
@@ -149,12 +149,12 @@ void setup() {
   Serial.println(HEADER);
   Serial.print("\nUID: ");
   Serial.print(UID);
-  Serial.print("\nConnecting to "); Serial.print(WIFI_SSID); Serial.print(" Wifi"); 
+  Serial.print("\nConnecting to "); Serial.print(WIFI_SSID); Serial.print(" Wifi");
   while ((WiFi.status() != WL_CONNECTED) && kRetries --) {
     delay(500);
     Serial.print(" .");
   }
-  if (WiFi.status() == WL_CONNECTED) {  
+  if (WiFi.status() == WL_CONNECTED) {
     Serial.println(" DONE");
     Serial.print("IP Address is: "); Serial.println(WiFi.localIP());
     Serial.print("Connecting to ");Serial.print(MQTT_SERVER);Serial.print(" Broker . .");
@@ -195,7 +195,7 @@ void setup() {
 
 void loop() {
   ArduinoOTA.handle();
-  if (OTAupdate == false) { 
+  if (OTAupdate == false) {
     mqttClient.loop();
     timedTasks1();
     checkStatus();
@@ -210,9 +210,9 @@ void loop() {
   }
 }
 
-void blinkLED(int pin, int duration, int n) {             
-  for(int i=0; i<n; i++)  {  
-    digitalWrite(pin, HIGH);        
+void blinkLED(int pin, int duration, int n) {
+  for(int i=0; i<n; i++)  {
+    digitalWrite(pin, HIGH);
     delay(duration);
     digitalWrite(pin, LOW);
     delay(duration);
@@ -222,19 +222,19 @@ void blinkLED(int pin, int duration, int n) {
 void button() {
   if (!digitalRead(B_1)) {
     count++;
-  } 
+  }
   else {
-    if (count > 1 && count <= 40) {   
+    if (count > 1 && count <= 40) {
       #ifdef ORIG
       digitalWrite(LED, !digitalRead(LED));
       #endif
       digitalWrite(L_1, !digitalRead(L_1));
       sendStatus = true;
-    } 
+    }
     else if (count >40){
-      Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait"); 
+      Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
       requestRestart = true;
-    } 
+    }
     count=0;
   }
 }
@@ -243,13 +243,13 @@ void checkConnection() {
   if (WiFi.status() == WL_CONNECTED)  {
     if (mqttClient.connected()) {
       Serial.println("mqtt broker connection . . . . . . . . . . OK");
-    } 
+    }
     else {
       Serial.println("mqtt broker connection . . . . . . . . . . LOST");
       requestRestart = true;
     }
   }
-  else { 
+  else {
     Serial.println("WiFi connection . . . . . . . . . . LOST");
     requestRestart = true;
   }
@@ -261,7 +261,7 @@ void checkStatus() {
     if(digitalRead(LED) == LOW)  {
       if (rememberRelayState) {
         EEPROM.write(0, 1);
-      }      
+      }
       if (kRetain == 0) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "on").set_qos(QOS));
       } else {
@@ -271,7 +271,7 @@ void checkStatus() {
     } else {
        if (rememberRelayState) {
         EEPROM.write(0, 0);
-      }       
+      }
       if (kRetain == 0) {
         mqttClient.publish(MQTT::Publish(MQTT_TOPIC"/stat", "off").set_qos(QOS));
       } else {
@@ -305,7 +305,7 @@ void checkStatus() {
     #endif
     if (rememberRelayState) {
       EEPROM.commit();
-    }    
+    }
     sendStatus = false;
   }
   if (requestRestart) {
@@ -377,7 +377,7 @@ void doReport() {
 }
 
 void timedTasks1() {
-  if ((millis() > TTasks1 + (kUpdFreq*60000)) || (millis() < TTasks1)) { 
+  if ((millis() > TTasks1 + (kUpdFreq*60000)) || (millis() < TTasks1)) {
     TTasks1 = millis();
     checkConnection();
     doReport();
@@ -386,4 +386,3 @@ void timedTasks1() {
     #endif
   }
 }
-
