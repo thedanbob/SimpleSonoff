@@ -266,21 +266,13 @@ void checkStatus() {
       if (rememberRelayState) {
         EEPROM.write(0, 1);
       }
-      if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain().set_qos(QOS));
-      } else {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_qos(QOS));
-      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain(mqttRetain).set_qos(QOS));
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     } else {
-       if (rememberRelayState) {
+      if (rememberRelayState) {
         EEPROM.write(0, 0);
       }
-      if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain().set_qos(QOS));
-      } else {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_qos(QOS));
-      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain(mqttRetain).set_qos(QOS));
       Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
     }
     #endif
@@ -289,21 +281,13 @@ void checkStatus() {
       if (rememberRelayState) {
         EEPROM.write(0, 0);
       }
-      if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain().set_qos(QOS));
-      } else {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_qos(QOS));
-      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "off").set_retain(mqttRetain).set_qos(QOS));
       Serial.println("Relay . . . . . . . . . . . . . . . . . . OFF");
     } else {
       if (rememberRelayState) {
         EEPROM.write(0, 1);
       }
-      if (mqttRetain) {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain().set_qos(QOS));
-      } else {
-        mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_qos(QOS));
-      }
+      mqttClient.publish(MQTT::Publish(mqttStatTopic, "on").set_retain(mqttRetain).set_qos(QOS));
       Serial.println("Relay . . . . . . . . . . . . . . . . . . ON");
     }
     #endif
@@ -345,22 +329,14 @@ void getTemp() {
     digitalWrite(LED, HIGH);
   }
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
-    if (mqttRetain) {
-      mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_retain().set_qos(QOS));
-    } else {
-      mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_qos(QOS));
-    }
+    mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_retain(mqttRetain).set_qos(QOS));
     Serial.println("ERROR");
     tempReport = false;
     return;
   }
   String pubString = "{\"Temp\": "+String(dhtT)+", "+"\"Humidity\": "+String(dhtH)+", "+"\"HeatIndex\": "+String(dhtHI) + "}";
   pubString.toCharArray(message_buff, pubString.length()+1);
-  if (mqttRetain) {
-    mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_retain().set_qos(QOS));
-  } else {
-    mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_qos(QOS));
-  }
+  mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_retain(mqttRetain).set_qos(QOS));
   Serial.println("OK");
   tempReport = false;
 }
@@ -371,13 +347,8 @@ void doReport() {
   char message_buff[120];
   String pubString = "{\"UID\": "+String(UID)+", "+"\"WiFi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(mqttBaseTopic)+", "+"\"Ver\": "+String(VER)+"}";
   pubString.toCharArray(message_buff, pubString.length()+1);
-  if (mqttRetain) {
-    mqttClient.publish(MQTT::Publish(mqttDebugTopic, message_buff).set_retain().set_qos(QOS));
-    mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_retain().set_qos(QOS));
-  } else {
-    mqttClient.publish(MQTT::Publish(mqttDebugTopic, message_buff).set_qos(QOS));
-    mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_qos(QOS));
-  }
+  mqttClient.publish(MQTT::Publish(mqttDebugTopic, message_buff).set_retain(mqttRetain).set_qos(QOS));
+  mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_retain(mqttRetain).set_qos(QOS));
 }
 
 void timedTasks1() {
