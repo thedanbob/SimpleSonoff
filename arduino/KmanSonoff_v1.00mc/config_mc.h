@@ -14,16 +14,16 @@ const int connectUpdateFreq = 1;                                       // Update
 int kRetries = 10;                                            // WiFi retry count (10 default). Increase if not connecting to your WiFi.
 const int QOS = 0;                                            // QOS level for all mqtt messages. (0 or 1)
 
-#define CH_1                                                  // Channel 1 (Default single channel. Do not comment out)
-//#define CH_2                                                  // Channel 2 (Uncomment to use 2nd Channel)
-//#define CH_3                                                  // Channel 3 (Uncomment to use 3rd Channel)
-//#define CH_4                                                  // Channel 4 (Uncomment to use 4th Channel)
+                                                              // Channel 1 is always enabled
+//#define CH_2                                                  // Channel 2 (Uncomment to use)
+//#define CH_3                                                  // Channel 3 (Uncomment to use)
+//#define CH_4                                                  // Channel 4 (Uncomment to use)
 
 const char* mqttServer = "192.168.0.100";                     // Your mqtt server ip address
 const int mqttPort = 1883;                                    // Your mqtt port
 const char* mqttBaseTopic = "home/sonoff/living_room/1";      // Base mqtt topic
-const char* mqttUser = "mqttUser";                           // mqtt username
-const char* mqttPass = "mqttPass";                           // mqtt password
+const char* mqttUser = "mqttUser";                            // mqtt username
+const char* mqttPass = "mqttPass";                            // mqtt password
 
 const char* ssid = "wifissid";                                // Your WiFi ssid
 const char* pass = "wifipass";                                // Your WiFi password

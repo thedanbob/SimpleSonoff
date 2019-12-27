@@ -29,11 +29,9 @@
 */
 
 #include "config_mc.h"
-#include <Arduino.h>
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
+#include <WiFiClient.h>
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
@@ -56,17 +54,15 @@ bool OTAupdate = false;
 char ESP_CHIP_ID[8];
 char UID[16];
 long rssi;
-unsigned long TTasks;
+unsigned long TasksTimer;
 const String mqttStatTopic = String(mqttBaseTopic) + "/stat";
 const String mqttDebugTopic = String(mqttBaseTopic) + "/debug";
 const String mqttHeartbeatTopic = String(mqttBaseTopic) + "/heartbeat";
 
-#ifdef CH_1
 bool sendStatus1 = false;
 int  SS1;
 unsigned long count1 = 0;
 Ticker btn_timer1;
-#endif
 
 #ifdef CH_2
 bool sendStatus2 = false;
@@ -89,10 +85,6 @@ unsigned long count4 = 0;
 Ticker btn_timer4;
 #endif
 
-extern "C" {
-  #include "user_interface.h"
-}
-
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient, mqttServer, mqttPort);
 
@@ -100,7 +92,6 @@ void callback(const MQTT::Publish& pub) {
   if (pub.payload_string() == "stat") {
   }
 
-  #ifdef CH_1
   else if (pub.payload_string() == "1on") {
     digitalWrite(L_1, HIGH);
     sendStatus1 = true;
@@ -109,7 +100,6 @@ void callback(const MQTT::Publish& pub) {
     digitalWrite(L_1, LOW);
     sendStatus1 = true;
   }
-  #endif
 
   #ifdef CH_2
   else if (pub.payload_string() == "2on") {
@@ -157,7 +147,6 @@ void setup() {
   sprintf(UID, HOST_PREFIX, ESP_CHIP_ID);
   EEPROM.begin(8);
 
-  #ifdef CH_1
   pinMode(B_1, INPUT);
   pinMode(L_1, OUTPUT);
   digitalWrite(L_1, LOW);
@@ -166,7 +155,6 @@ void setup() {
     digitalWrite(L_1, HIGH);
   }
   btn_timer1.attach(0.05, button1);
-  #endif
 
   #ifdef CH_2
   pinMode(B_2, INPUT);
@@ -282,7 +270,7 @@ void loop() {
 }
 
 void blinkLED(int pin, int duration, int n) {
-  for(int i=0; i<n; i++)  {
+  for(int i = 0; i < n; i++)  {
     digitalWrite(pin, HIGH);
     delay(duration);
     digitalWrite(pin, LOW);
@@ -290,7 +278,6 @@ void blinkLED(int pin, int duration, int n) {
   }
 }
 
-#ifdef CH_1
 void button1() {
   if (!digitalRead(B_1)) {
     count1++;
@@ -307,7 +294,6 @@ void button1() {
     count1 = 0;
   }
 }
-#endif
 
 #ifdef CH_2
 void button2() {
@@ -371,7 +357,6 @@ void checkConnection() {
 }
 
 void checkStatus() {
-  #ifdef CH_1
   if (sendStatus1) {
     if(digitalRead(L_1) == LOW)  {
       if (rememberRelayState1) {
@@ -390,7 +375,6 @@ void checkStatus() {
     }
     sendStatus1 = false;
   }
-  #endif
 
   #ifdef CH_2
   if (sendStatus2) {
@@ -471,8 +455,8 @@ void doReport() {
 }
 
 void timedTasks() {
-  if ((millis() > TTasks + (connectUpdateFreq*60000)) || (millis() < TTasks)) {
-    TTasks = millis();
+  if ((millis() > TasksTimer + (connectUpdateFreq*60000)) || (millis() < TasksTimer)) {
+    TasksTimer = millis();
     doReport();
     checkConnection();
   }
