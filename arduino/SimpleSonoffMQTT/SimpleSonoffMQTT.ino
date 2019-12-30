@@ -1,4 +1,5 @@
 /*
+  Copyright (c) 2019 @TheDanBob
   Copyright (c) 2017 @KmanOz
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,13 +20,9 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
-  **** Use this Firmware for: Sonoff 4CH, 4CH Pro & T1 (1, 2 and 3 Channel) ****
-  **** Make sure to select "Generic ESP8285 Module" from the BOARD menu in TOOLS ****
-  **** Flash Size "1M (64K SPIFFS)" ****
-
-  ===============================================================================================
-     ATTENTION !!!!!! DO NOT CHANGE ANYTHING IN THIS SECTION. UPDATE YOUR DETAILS IN CONFIG.H
-  ===============================================================================================
+  ======================================================================================
+      ATTENTION !!!!!! DO NOT CHANGE ANYTHING BELOW. UPDATE YOUR DETAILS IN CONFIG.H
+  ======================================================================================
 */
 
 #include "config.h"

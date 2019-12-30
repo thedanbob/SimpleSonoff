@@ -1,5 +1,13 @@
 /*
   ======================================================================================================================================
+  Arduino upload settings (Tools menu):
+
+  Sonoff Basic, SV, Touch, S20 Smart Socket, TH Series:
+    Board: ITEAD Sonoff (select model from next dropdown)
+  Sonoff 4CH, 4CH Pro & T1:
+    Board: Generic ESP8285 Module
+    Flash Size: 1M (64K SPIFFS)
+  ======================================================================================================================================
                                             Modify all parameters below to suit your environment
   ======================================================================================================================================
 */
