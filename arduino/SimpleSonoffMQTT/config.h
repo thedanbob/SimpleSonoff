@@ -37,6 +37,8 @@
 #define REMEMBER_RELAY_STATE_3 true
 #define REMEMBER_RELAY_STATE_4 true
 
+#define ENABLE_OTA_UPDATES                             // Enable updates via the Arduino IDE
+
 // Uncomment below to disable MULTI channels 2-4 (channel 1 is always enabled)
 //#define DISABLE_CH_2
 //#define DISABLE_CH_3

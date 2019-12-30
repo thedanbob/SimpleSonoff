@@ -29,9 +29,11 @@
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ArduinoOTA.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
+#ifdef ENABLE_OTA_UPDATES
+#include <ArduinoOTA.h>
+#endif
 #if defined(TH) && defined(TEMP)
 #include "DHT.h"
 #endif
@@ -116,9 +118,11 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.hostname(uid);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
-
   mqttClient.set_callback(mqttCallback);
+
+  #ifdef ENABLE_OTA_UPDATES
   setupOTA();
+  #endif
 
   Serial.println(header);
   Serial.print("\nUnit ID: "); Serial.print(uid);
@@ -181,7 +185,10 @@ void setup() {
 }
 
 void loop() {
+  #ifdef ENABLE_OTA_UPDATES
   ArduinoOTA.handle();
+  #endif
+
   if (OTAupdate == false) {
     mqttClient.loop();
     timedTasks();
@@ -213,6 +220,7 @@ void setupChannel(int index) {
   btnTimer[index].attach(0.05, std::bind(buttonHandler, index));
 }
 
+#ifdef ENABLE_OTA_UPDATES
 void setupOTA() {
   ArduinoOTA.setHostname(uid);
 
@@ -249,6 +257,7 @@ void setupOTA() {
 
   ArduinoOTA.begin();
 }
+#endif
 
 void buttonHandler(int index) {
   if (!digitalRead(btn[index])) {
