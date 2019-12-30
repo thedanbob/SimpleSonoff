@@ -45,8 +45,8 @@ const char* version    = "ds_v1.00";
 
 // The ORIG and TH variants have more memory than MULTI anyway so let's just define the multi-channel arrays
 const int btn[] = {0, 9, 10, 14};
-const int led[] = {12, 5, 4, 15};
-const int mainLed = 13;
+const int relay[] = {12, 5, 4, 15};
+const int led = 13;
 
 const bool rememberRelayState[] = {REMEMBER_RELAY_STATE_1, REMEMBER_RELAY_STATE_2, REMEMBER_RELAY_STATE_3, REMEMBER_RELAY_STATE_4};
 int relayState[4];
@@ -96,8 +96,8 @@ bool tempReport = false;
 #endif
 
 void setup() {
-  pinMode(mainLed, OUTPUT);
-  digitalWrite(mainLed, HIGH);
+  pinMode(led, OUTPUT);
+  digitalWrite(led, HIGH);
   #ifdef WS
   pinMode(optPin, INPUT_PULLUP);
   #endif
@@ -180,11 +180,11 @@ void setup() {
   #endif
   #endif
 
-  blinkLED(mainLed, 40, 8);
+  blinkLED(led, 40, 8);
   #ifdef ORIG
-  digitalWrite(mainLed, !digitalRead(led[0]));
+  digitalWrite(led, !digitalRead(relay[0]));
   #else
-  digitalWrite(mainLed, LOW);
+  digitalWrite(led, LOW);
   #endif
 }
 
@@ -207,15 +207,15 @@ void loop() {
 
 void setupChannel(int index) {
   pinMode(btn[index], INPUT);
-  pinMode(led[index], OUTPUT);
-  digitalWrite(led[index], LOW);
+  pinMode(relay[index], OUTPUT);
+  digitalWrite(relay[index], LOW);
 
   relayState[index] = EEPROM.read(index);
   if (rememberRelayState[index] && relayState[index] == 1) {
     #ifdef ORIG
-    digitalWrite(mainLed, LOW);
+    digitalWrite(led, LOW);
     #endif
-    digitalWrite(led[index], HIGH);
+    digitalWrite(relay[index], HIGH);
   }
 
   btnTimer[index].attach(0.05, std::bind(buttonHandler, index));
@@ -226,8 +226,8 @@ void setupOTA() {
 
   ArduinoOTA.onStart([]() {
     OTAupdate = true;
-    blinkLED(mainLed, 400, 2);
-    digitalWrite(mainLed, HIGH);
+    blinkLED(led, 400, 2);
+    digitalWrite(led, HIGH);
     Serial.println("OTA Update Initiated . . .");
   });
 
@@ -238,14 +238,14 @@ void setupOTA() {
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    digitalWrite(mainLed, LOW);
+    digitalWrite(led, LOW);
     delay(5);
-    digitalWrite(mainLed, HIGH);
+    digitalWrite(led, HIGH);
     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
-    blinkLED(mainLed, 40, 2);
+    blinkLED(led, 40, 2);
     OTAupdate = false;
     Serial.printf("OTA Error [%u] ", error);
     if (error == OTA_AUTH_ERROR) Serial.println(". . . . . . . . . . . . . . . Auth Failed");
@@ -264,9 +264,9 @@ void buttonHandler(int index) {
   } else {
     if (btnCount[index] > 1 && btnCount[index] <= 40) {
       #ifdef ORIG
-      digitalWrite(mainLed, !digitalRead(mainLed));
+      digitalWrite(led, !digitalRead(led));
       #endif
-      digitalWrite(led[index], !digitalRead(led[index]));
+      digitalWrite(relay[index], !digitalRead(relay[index]));
       sendStatus[index] = true;
     }
     else if (btnCount[index] > 40) {
@@ -306,14 +306,14 @@ void mqttCmdHandler(int index, String cmd) {
     // Skip to the end
   } else if (cmd == "on") {
     #ifdef ORIG
-    digitalWrite(mainLed, LOW);
+    digitalWrite(led, LOW);
     #endif
-    digitalWrite(led[index], HIGH);
+    digitalWrite(relay[index], HIGH);
   } else if (cmd == "off") {
     #ifdef ORIG
-    digitalWrite(mainLed, HIGH);
+    digitalWrite(led, HIGH);
     #endif
-    digitalWrite(led[index], LOW);
+    digitalWrite(relay[index], LOW);
   } else {
     return; // Ignore other commands
   }
@@ -384,7 +384,7 @@ void checkStatus() {
   #endif
 
   if (requestRestart) {
-    blinkLED(mainLed, 400, 4);
+    blinkLED(led, 400, 4);
     ESP.restart();
   }
 }
@@ -393,9 +393,9 @@ void checkChannelStatus(int index) {
   if (!sendStatus[index]) return;
 
   #ifdef ORIG
-  int state = !digitalRead(mainLed);
+  int state = !digitalRead(led);
   #else
-  int state = digitalRead(led[index]);
+  int state = digitalRead(relay[index]);
   #endif
 
   if (rememberRelayState[index]) {
@@ -412,8 +412,8 @@ void checkChannelStatus(int index) {
 void checkWallSwitch() {
   int wallSwitch = digitalRead(optPin);
   if (wallSwitch != lastWallSwitch) {
-    digitalWrite(led[0], !digitalRead(led[0]));
-    digitalWrite(mainLed, !digitalRead(mainLed));
+    digitalWrite(relay[0], !digitalRead(relay[0]));
+    digitalWrite(led, !digitalRead(led));
     sendStatus[0] = true;
   }
   lastWallSwitch = wallSwitch;
@@ -432,9 +432,9 @@ void getTemp() {
   dhtT = dht.readTemperature(USE_FAHRENHEIT);
   dhtHI = dht.computeHeatIndex(dhtT, dhtH, USE_FAHRENHEIT);
 
-  int ledState = digitalRead(mainLed);
-  blinkLED(mainLed, 100, 1);
-  digitalWrite(mainLed, ledState);
+  int ledState = digitalRead(led);
+  blinkLED(led, 100, 1);
+  digitalWrite(led, ledState);
 
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
     #ifdef SSM_DEBUG
