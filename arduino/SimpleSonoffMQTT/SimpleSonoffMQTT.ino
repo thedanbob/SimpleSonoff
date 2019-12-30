@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2019 @TheDanBob
+  Copyright (c) 2019 Dan Arnfield
   Copyright (c) 2017 @KmanOz
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
