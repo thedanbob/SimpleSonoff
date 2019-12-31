@@ -1,3 +1,5 @@
+#ifndef SIMPLE_SONOFF_CONFIG_H
+#define SIMPLE_SONOFF_CONFIG_H
 /*
   ======================================================================================================================================
   Arduino upload settings (Tools menu):
@@ -45,7 +47,8 @@
 //#define DISABLE_CH_4
 
 // Uncomment below to enable debug reporting
-//#define SSM_DEBUG
+//#define SIMPLE_SONOFF_DEBUG
 /*
   ======================================================================================================================================
 */
+#endif

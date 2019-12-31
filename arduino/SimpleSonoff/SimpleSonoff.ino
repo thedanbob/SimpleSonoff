@@ -5,9 +5,9 @@
 */
 
 #include "config.h"
+#include "mqtt_client.h"
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
 #ifdef ENABLE_OTA_UPDATES
@@ -17,9 +17,7 @@
 #include "DHT.h"
 #endif
 
-const char* hostPrefix = "Sonoff_%s";
-const char* header     = "\n\n--------------  SimpleSonoffMQTT_v1.00  --------------";
-const char* version    = "ds_v1.00";
+const char* header     = "\n\n--------------  SimpleSonoff_v1.00  --------------";
 
 // The ORIG and TH variants have more memory than MULTI anyway so let's just define the multi-channel arrays
 const int btn[] = {0, 9, 10, 14};
@@ -36,23 +34,8 @@ Ticker btnTimer[4];
 
 bool requestRestart = false;
 bool OTAupdate = false;
-char espChipID[8];
-char uid[16];
-long rssi;
 unsigned long TasksTimer;
-
-WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient, MQTT_SERVER, MQTT_PORT);
-
-#if defined(MULTI)
-const String mqttCmdTopic[] = {MQTT_BASE_TOPIC"/ch1", MQTT_BASE_TOPIC"/ch2", MQTT_BASE_TOPIC"/ch3", MQTT_BASE_TOPIC"/ch4"};
-const String mqttStatTopic[] = {MQTT_BASE_TOPIC"/ch1/stat", MQTT_BASE_TOPIC"/ch2/stat", MQTT_BASE_TOPIC"/ch3/stat", MQTT_BASE_TOPIC"/ch4/stat"};
-#else
-const String mqttCmdTopic[] = {MQTT_BASE_TOPIC};
-const String mqttStatTopic[] = {MQTT_BASE_TOPIC"/stat"};
-#endif
-const String mqttDebugTopic = MQTT_BASE_TOPIC"/debug";
-const String mqttHeartbeatTopic = MQTT_BASE_TOPIC"/heartbeat";
+SimpleSonoff::MQTTClient mqttClient(mqttCallback);
 
 #if defined(TEMP) || defined(WS)
 const int optPin = 14;
@@ -64,7 +47,6 @@ int lastWallSwitch = 1;
 
 #if defined(TH) && defined(TEMP)
 DHT dht(optPin, DHTTYPE, 11);
-const String mqttTempTopic = MQTT_BASE_TOPIC"/temp";
 bool tempReport = false;
 #endif
 
@@ -74,8 +56,6 @@ void setup() {
   #ifdef WS
   pinMode(optPin, INPUT_PULLUP);
   #endif
-  sprintf(espChipID, "%06X", ESP.getChipId());
-  sprintf(uid, hostPrefix, espChipID);
 
   Serial.begin(115200);
   EEPROM.begin(8);
@@ -94,66 +74,16 @@ void setup() {
   #endif
   #endif
 
-  WiFi.mode(WIFI_STA);
-  WiFi.hostname(uid);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  mqttClient.set_callback(mqttCallback);
+  Serial.println(header);
+  if (!mqttClient.connect()) return;
 
   #ifdef ENABLE_OTA_UPDATES
   setupOTA();
   #endif
 
-  Serial.println(header);
-  Serial.print("\nUnit ID: "); Serial.print(uid);
-  Serial.print("\nConnecting to wifi: "); Serial.print(WIFI_SSID);
-
-  for (int r = 0; r < CONNECT_RETRIES; r++) {
-    if (WiFi.status() == WL_CONNECTED) break;
-    delay(500);
-    Serial.print(" .");
-  }
-
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println(" WiFi FAILED!");
-    Serial.println("\n--------------------------------------------------");
-    Serial.println();
-    return;
-  }
-
-  Serial.println(" DONE");
-  Serial.print("IP Address is: "); Serial.println(WiFi.localIP());
-  Serial.print("Connecting to "); Serial.print(MQTT_SERVER); Serial.print(" Broker . .");
-  delay(500);
-
-  for (int r = 0; r < CONNECT_RETRIES; r++) {
-    if (mqttClient.connect(MQTT::Connect(uid).set_keepalive(90).set_auth(MQTT_USER, MQTT_PASS))) break;
-    Serial.print(" .");
-    delay(1000);
-  }
-
-  if (!mqttClient.connected()) {
-    Serial.println(" FAILED!");
-    Serial.println("\n--------------------------------------------------");
-    Serial.println();
-    return;
-  }
-
   Serial.println(" DONE");
   Serial.println("\n---------------------  Logs  ---------------------");
   Serial.println();
-
-  mqttClient.subscribe(mqttCmdTopic[0]);
-  #ifdef MULTI
-  #ifndef DISABLE_CH_2
-  mqttClient.subscribe(mqttCmdTopic[1]);
-  #endif
-  #ifndef DISABLE_CH_3
-  mqttClient.subscribe(mqttCmdTopic[2]);
-  #endif
-  #ifndef DISABLE_CH_4
-  mqttClient.subscribe(mqttCmdTopic[3]);
-  #endif
-  #endif
 
   blinkLED(led, 40, 8);
   #ifdef ORIG
@@ -201,7 +131,7 @@ void setupChannel(int index) {
 
 #ifdef ENABLE_OTA_UPDATES
 void setupOTA() {
-  ArduinoOTA.setHostname(uid);
+  ArduinoOTA.setHostname(mqttClient.UID());
 
   ArduinoOTA.onStart([]() {
     OTAupdate = true;
@@ -258,25 +188,9 @@ void buttonHandler(int index) {
 }
 
 void mqttCallback(const MQTT::Publish& pub) {
-  int index = 0;
+  int index = mqttClient.topicToChannel(pub.topic());
+  String cmd = pub.payload_string();
 
-  #ifdef MULTI
-  if (pub.topic() == mqttCmdTopic[1]) index = 0;
-  #ifndef DISABLE_CH_2
-  else if (pub.topic() == mqttCmdTopic[1]) index = 1;
-  #endif
-  #ifndef DISABLE_CH_3
-  else if (pub.topic() == mqttCmdTopic[2]) index = 2;
-  #endif
-  #ifndef DISABLE_CH_4
-  else if (pub.topic() == mqttCmdTopic[3]) index = 3;
-  #endif
-  #endif
-
-  mqttCmdHandler(index, pub.payload_string());
-}
-
-void mqttCmdHandler(int index, String cmd) {
   if (cmd == "reset") {
     requestRestart = true;
     return;
@@ -313,40 +227,16 @@ void blinkLED(int pin, int duration, int n) {
 void timedTasks() {
   if ((millis() > TasksTimer + (CONNECT_UPD_FREQ*60000)) || (millis() < TasksTimer)) {
     TasksTimer = millis();
-    checkConnection();
-    mqttHeartbeat();
+    if (mqttClient.alive()) {
+      mqttClient.heartbeat();
+    } else {
+      requestRestart = true;
+    }
 
     #if defined(TH) && defined(TEMP)
     tempReport = true;
     #endif
   }
-}
-
-void checkConnection() {
-  if (WiFi.status() != WL_CONNECTED)  {
-    Serial.println("WiFi connection . . . . . . . . . . LOST");
-    requestRestart = true;
-    return;
-  }
-
-  if (mqttClient.connected()) {
-    Serial.println("mqtt broker connection . . . . . . . . . . OK");
-  }
-  else {
-    Serial.println("mqtt broker connection . . . . . . . . . . LOST");
-    requestRestart = true;
-  }
-}
-
-void mqttHeartbeat() {
-  #ifdef SSM_DEBUG
-  rssi = WiFi.RSSI();
-  char message_buff[120];
-  String pubString = "{\"UID\": "+String(uid)+", "+"\"WiFi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(MQTT_BASE_TOPIC)+", "+"\"Ver\": "+String(version)+"}";
-  pubString.toCharArray(message_buff, pubString.length()+1);
-  mqttClient.publish(MQTT::Publish(mqttDebugTopic, message_buff).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
-  #endif
-  mqttClient.publish(MQTT::Publish(mqttHeartbeatTopic, "OK").set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
 }
 
 void checkStatus() {
@@ -383,7 +273,7 @@ void checkChannelStatus(int index) {
     EEPROM.commit();
   }
 
-  mqttClient.publish(MQTT::Publish(mqttStatTopic[index], relayStateName[state]).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+  mqttClient.publishChannel(index, relayStateName[state]);
   Serial.print("Relay "); Serial.print(index); Serial.print(" . . . . . . . . . . . . . . . . . . "); Serial.println(relayStateName[state]);
   sendStatus[index] = false;
 }
@@ -406,7 +296,6 @@ void getTemp() {
 
   Serial.print("DHT read . . . . . . . . . . . . . . . . . ");
   float dhtH, dhtT, dhtHI;
-  char message_buff[60];
 
   dhtH = dht.readHumidity();
   dhtT = dht.readTemperature(USE_FAHRENHEIT);
@@ -417,8 +306,8 @@ void getTemp() {
   digitalWrite(led, ledState);
 
   if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
-    #ifdef SSM_DEBUG
-    mqttClient.publish(MQTT::Publish(mqttDebugTopic,"\"DHT Read Error\"").set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+    #ifdef SIMPLE_SONOFF_DEBUG
+    mqttClient.publishDebug("\"DHT Read Error\"");
     #endif
     Serial.println("DHT read error");
     tempReport = false;
@@ -426,8 +315,7 @@ void getTemp() {
   }
 
   String pubString = "{\"Temp\": "+String(dhtT)+", "+"\"Humidity\": "+String(dhtH)+", "+"\"HeatIndex\": "+String(dhtHI) + "}";
-  pubString.toCharArray(message_buff, pubString.length()+1);
-  mqttClient.publish(MQTT::Publish(mqttTempTopic, message_buff).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+  mqttClient.publishTemp(pubString);
   Serial.println("DHT read OK");
   tempReport = false;
 }
