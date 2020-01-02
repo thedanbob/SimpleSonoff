@@ -35,49 +35,50 @@ namespace SimpleSonoff {
     WiFi.hostname(this->uid);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-    Serial.print("\nUnit ID: "); Serial.print(this->uid);
-    Serial.print("\nConnecting to wifi: "); Serial.print(WIFI_SSID);
+    Serial.print("\nUnit ID: "); Serial.println(this->uid);
+    Serial.print("Connecting to wifi: "); Serial.print(WIFI_SSID);
 
     for (int r = 0; r < CONNECT_RETRIES; r++) {
       if (WiFi.status() == WL_CONNECTED) break;
       delay(500);
-      Serial.print(" .");
+      Serial.print(". ");
     }
 
     if (WiFi.status() != WL_CONNECTED) {
-      Serial.println(" Wifi FAILED!");
-      Serial.println("\n--------------------------------------------------");
-      Serial.println();
+      Serial.println("FAILED!");
       return false;
     }
 
-    Serial.println(" DONE");
-    Serial.print("IP Address is: "); Serial.println(WiFi.localIP());
-    Serial.print("Connecting to "); Serial.print(MQTT_SERVER); Serial.print(" MQTT broker . .");
+    Serial.println("done");
+    Serial.print("IP Address is "); Serial.println(WiFi.localIP());
+    Serial.print("Connecting to MQTT broker "); Serial.print(MQTT_SERVER); Serial.print(": ");
     delay(500);
 
     for (int r = 0; r < CONNECT_RETRIES; r++) {
       if (this->pubSubClient->connect(MQTT::Connect(this->uid).set_keepalive(90).set_auth(MQTT_USER, MQTT_PASS))) break;
-      Serial.print(" .");
+      Serial.print(". ");
       delay(1000);
     }
 
     if (!this->pubSubClient->connected()) {
-      Serial.println(" FAILED!");
-      Serial.println("\n--------------------------------------------------");
-      Serial.println();
+      Serial.println("FAILED!");
       return false;
     }
 
+    Serial.println("done");
+    Serial.print("Subscribing to topic "); Serial.println(cmdTopic[0]);
     this->pubSubClient->subscribe(cmdTopic[0]);
     #ifdef MULTI
     #ifndef DISABLE_CH_2
+    Serial.print("Subscribing to topic "); Serial.println(cmdTopic[0]);
     this->pubSubClient->subscribe(cmdTopic[1]);
     #endif
     #ifndef DISABLE_CH_3
+    Serial.print("Subscribing to topic "); Serial.println(cmdTopic[0]);
     this->pubSubClient->subscribe(cmdTopic[2]);
     #endif
     #ifndef DISABLE_CH_4
+    Serial.print("Subscribing to topic "); Serial.println(cmdTopic[0]);
     this->pubSubClient->subscribe(cmdTopic[3]);
     #endif
     #endif
@@ -91,16 +92,16 @@ namespace SimpleSonoff {
 
   bool MQTTClient::checkAlive() {
     if (WiFi.status() != WL_CONNECTED)  {
-      Serial.println("Wifi connection . . . . . . . . . . LOST");
+      Serial.println("Wifi connection lost!");
       return false;
     }
 
     if (this->pubSubClient->connected()) {
-      Serial.println("MQTT broker connection . . . . . . . . . . OK");
+      Serial.println("MQTT broker connection ok");
       this->heartbeat();
     }
     else {
-      Serial.println("MQTT broker connection . . . . . . . . . . LOST");
+      Serial.println("MQTT broker connection lost!");
       return false;
     }
 

@@ -19,26 +19,26 @@ namespace SimpleSonoff {
     this->restart = false;
   }
 
-  void Hardware::init() {
+  void Hardware::setup() {
     pinMode(ledPin, OUTPUT);
     digitalWrite(ledPin, HIGH);
     EEPROM.begin(8);
 
-    setupChannel(0); // Channel 1
+    this->setupChannel(0); // Channel 1
     #ifdef MULTI
     #ifndef DISABLE_CH_2
-    setupChannel(1);
+    this->setupChannel(1);
     #endif
     #ifndef DISABLE_CH_3
-    setupChannel(2);
+    this->setupChannel(2);
     #endif
     #ifndef DISABLE_CH_4
-    setupChannel(3);
+    this->setupChannel(3);
     #endif
     #endif
   }
 
-  void Hardware::finishInit() {
+  void Hardware::postSetup() {
     this->blinkLED(40, 8);
     #ifdef ORIG
     digitalWrite(ledPin, !digitalRead(relayPin[0]));

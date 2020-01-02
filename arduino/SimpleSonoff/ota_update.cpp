@@ -15,11 +15,11 @@ namespace SimpleSonoff {
       update = true;
       hardware.blinkLED(400, 2);
       hardware.setLED(false);
-      Serial.println("OTA Update Initiated . . .");
+      Serial.println("OTA update initiated...");
     });
 
     ArduinoOTA.onEnd([this]() {
-      Serial.println("\nOTA Update Ended . . .s");
+      Serial.println("\nOTA update done");
       update = false;
       restart = true;
     });
@@ -34,12 +34,12 @@ namespace SimpleSonoff {
     ArduinoOTA.onError([this, &hardware](ota_error_t error) {
       hardware.blinkLED(40, 2);
       update = false;
-      Serial.printf("OTA Error [%u] ", error);
-      if (error == OTA_AUTH_ERROR) Serial.println(". . . . . . . . . . . . . . . Auth Failed");
-      else if (error == OTA_BEGIN_ERROR) Serial.println(". . . . . . . . . . . . . . . Begin Failed");
-      else if (error == OTA_CONNECT_ERROR) Serial.println(". . . . . . . . . . . . . . . Connect Failed");
-      else if (error == OTA_RECEIVE_ERROR) Serial.println(". . . . . . . . . . . . . . . Receive Failed");
-      else if (error == OTA_END_ERROR) Serial.println(". . . . . . . . . . . . . . . End Failed");
+      Serial.printf("OTA error: [%u] ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
     });
 
     ArduinoOTA.begin();

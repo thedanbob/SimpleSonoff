@@ -23,8 +23,8 @@ namespace SimpleSonoff {
 
     public:
       Hardware();
-      void init();
-      void finishInit();
+      void setup();
+      void postSetup();
       void blinkLED(int duration, int n);
       bool getLED();
       void setLED(bool on);

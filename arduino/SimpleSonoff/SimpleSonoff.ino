@@ -44,20 +44,17 @@ void setup() {
   #endif
 
   Serial.begin(115200);
-  hardware.init();
-
   Serial.println(header);
+  hardware.setup();
+
   if (!mqttClient.connect()) return;
 
   #ifdef ENABLE_OTA_UPDATES
   otaUpdate.setup(mqttClient.UID(), hardware);
   #endif
 
-  Serial.println(" DONE");
-  Serial.println("\n---------------------  Logs  ---------------------");
-  Serial.println();
-
-  hardware.finishInit();
+  Serial.println("\n---------------------  Logs  ---------------------\n");
+  hardware.postSetup();
 }
 
 void loop() {
