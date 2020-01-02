@@ -17,6 +17,11 @@ unsigned long TasksTimer;
 SimpleSonoff::Hardware hardware;
 SimpleSonoff::MQTTClient mqttClient(hardware);
 
+#ifdef WS
+#include "ws.h"
+SimpleSonoff::WS ws(hardware);
+#endif
+
 #if defined(TH) && defined(TEMP)
 #include "temp.h"
 SimpleSonoff::Temp temp(hardware, mqttClient);
@@ -27,18 +32,14 @@ SimpleSonoff::Temp temp(hardware, mqttClient);
 SimpleSonoff::OTAUpdate otaUpdate;
 #endif
 
-#ifdef WS
-int lastWallSwitch = 1;
-#endif
-
 void setup() {
-  #ifdef WS
-  pinMode(OPT_PIN, INPUT_PULLUP);
-  #endif
-
   Serial.begin(115200);
   Serial.println(header);
   hardware.setup();
+
+  #ifdef WS
+  ws.setup()
+  #endif
 
   if (!mqttClient.connect()) return;
 
@@ -61,7 +62,7 @@ void loop() {
   checkStatus();
 
   #ifdef WS
-  checkWallSwitch();
+  ws.check();
   #endif
 
   #if defined(TH) && defined(TEMP)
@@ -105,13 +106,3 @@ void checkStatus() {
     ESP.restart();
   }
 }
-
-#ifdef WS
-void checkWallSwitch() {
-  int wallSwitch = digitalRead(OPT_PIN);
-  if (wallSwitch != lastWallSwitch) {
-    hardware.toggleWallSwitch();
-  }
-  lastWallSwitch = wallSwitch;
-}
-#endif
