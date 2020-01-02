@@ -29,6 +29,7 @@ namespace SimpleSonoff {
       bool getLED();
       void setLED(bool on);
       void setRelay(int ch, bool state);
+      void setSendState(int ch);
       bool shouldSendState(int ch);
       String checkState(int ch);
       void toggleWallSwitch();

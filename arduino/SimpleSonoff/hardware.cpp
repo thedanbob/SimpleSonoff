@@ -104,6 +104,10 @@ namespace SimpleSonoff {
     digitalWrite(ledPin, !state);
     #endif
     digitalWrite(relayPin[ch], state);
+    this->setSendState(ch);
+  }
+
+  void Hardware::setSendState(int ch) {
     this->sendState[ch] = true;
   }
 
