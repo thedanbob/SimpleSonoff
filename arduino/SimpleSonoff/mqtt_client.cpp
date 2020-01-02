@@ -14,11 +14,11 @@ namespace SimpleSonoff {
   const String MQTTClient::statTopic[] = {MQTT_BASE_TOPIC"/stat"};
   #endif
 
-  MQTTClient::MQTTClient(SimpleSonoff::Hardware hardware) {
+  MQTTClient::MQTTClient(SimpleSonoff::Hardware* h) {
     this->restart = false;
     this->wifiClient.reset(new WiFiClient());
     this->pubSubClient.reset(new PubSubClient(*this->wifiClient, MQTT_SERVER, MQTT_PORT));
-    this->hardware.reset(&hardware);
+    this->hardware = h;
 
     this->pubSubClient->set_callback([this](const MQTT::Publish& pub){
       this->callback(pub);

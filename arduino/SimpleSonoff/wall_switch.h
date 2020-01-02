@@ -8,10 +8,10 @@
 namespace SimpleSonoff {
   class WallSwitch {
     bool lastState;
-    std::unique_ptr<SimpleSonoff::Hardware> hardware;
+    SimpleSonoff::Hardware* hardware;
 
     public:
-      WallSwitch(SimpleSonoff::Hardware hardware);
+      WallSwitch(SimpleSonoff::Hardware* h);
       void setup();
       void check();
   };

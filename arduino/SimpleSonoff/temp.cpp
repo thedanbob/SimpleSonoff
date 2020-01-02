@@ -2,11 +2,11 @@
 #include "temp.h"
 
 namespace SimpleSonoff {
-  Temp::Temp(SimpleSonoff::Hardware hardware, SimpleSonoff::MQTTClient mqttClient) {
+  Temp::Temp(SimpleSonoff::Hardware* h, SimpleSonoff::MQTTClient* m) {
     this->report = false;
     this->dht.reset(new DHT(OPT_PIN, DHTTYPE, 11));
-    this->hardware.reset(&hardware);
-    this->mqttClient.reset(&mqttClient);
+    this->hardware = h;
+    this->mqttClient = m;
   }
 
   void Temp::doReport() {
