@@ -1,20 +1,21 @@
 #include "config.h"
-#include "ws.h"
+#include "hardware.h"
+#include "wall_switch.h"
 
 namespace SimpleSonoff {
-  WS::WS(SimpleSonoff::Hardware hardware) {
+  WallSwitch::WallSwitch(SimpleSonoff::Hardware hardware) {
     this->lastState = true;
     this->hardware.reset(&hardware);
   }
 
-  void WS::setup() {
+  void WallSwitch::setup() {
     pinMode(OPT_PIN, INPUT_PULLUP);
   }
 
-  void WS::check() {
+  void WallSwitch::check() {
     bool state = digitalRead(OPT_PIN);
     if (state != this->lastState) {
-      hardware->toggleWallSwitch();
+      this->hardware->toggleWallSwitch();
     }
     this->lastState = state;
   }

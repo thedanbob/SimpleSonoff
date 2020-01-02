@@ -18,8 +18,8 @@ SimpleSonoff::Hardware hardware;
 SimpleSonoff::MQTTClient mqttClient(hardware);
 
 #ifdef WS
-#include "ws.h"
-SimpleSonoff::WS ws(hardware);
+#include "wall_switch.h"
+SimpleSonoff::WallSwitch wallSwitch(hardware);
 #endif
 
 #if defined(TH) && defined(TEMP)
@@ -38,7 +38,7 @@ void setup() {
   hardware.setup();
 
   #ifdef WS
-  ws.setup()
+  wallSwitch.setup();
   #endif
 
   if (!mqttClient.connect()) return;
@@ -62,7 +62,7 @@ void loop() {
   checkStatus();
 
   #ifdef WS
-  ws.check();
+  wallSwitch.check();
   #endif
 
   #if defined(TH) && defined(TEMP)
