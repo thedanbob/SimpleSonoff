@@ -1,6 +1,7 @@
 #ifndef SIMPLE_SONOFF_HARDWARE_H
 #define SIMPLE_SONOFF_HARDWARE_H
 
+#include <Arduino.h>
 #include <Ticker.h>
 #include "config.h"
 

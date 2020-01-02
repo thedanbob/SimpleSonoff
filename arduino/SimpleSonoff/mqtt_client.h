@@ -2,6 +2,7 @@
 #define SIMPLE_SONOFF_MQTT_H
 
 #include <memory>
+#include <Arduino.h>
 #include <WiFiClient.h>
 #include <PubSubClient.h>
 #include "config.h"
