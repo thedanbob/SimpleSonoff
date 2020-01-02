@@ -14,6 +14,7 @@ namespace SimpleSonoff {
   #endif
 
   MQTTClient::MQTTClient(std::function<void(const MQTT::Publish&)> mqttCallback) {
+    this->restart = false;
     this->wifiClient.reset(new WiFiClient());
     this->pubSubClient.reset(new PubSubClient(*this->wifiClient, MQTT_SERVER, MQTT_PORT));
     this->pubSubClient->set_callback(mqttCallback);
@@ -83,7 +84,7 @@ namespace SimpleSonoff {
     this->pubSubClient->loop();
   }
 
-  bool MQTTClient::alive() {
+  bool MQTTClient::checkAlive() {
     if (WiFi.status() != WL_CONNECTED)  {
       Serial.println("Wifi connection . . . . . . . . . . LOST");
       return false;
@@ -91,6 +92,7 @@ namespace SimpleSonoff {
 
     if (this->pubSubClient->connected()) {
       Serial.println("MQTT broker connection . . . . . . . . . . OK");
+      this->heartbeat();
     }
     else {
       Serial.println("MQTT broker connection . . . . . . . . . . LOST");

@@ -142,11 +142,8 @@ void mqttCallback(const MQTT::Publish& pub) {
 void timedTasks() {
   if ((millis() > TasksTimer + (CONNECT_UPD_FREQ*60000)) || (millis() < TasksTimer)) {
     TasksTimer = millis();
-    if (mqttClient.alive()) {
-      mqttClient.heartbeat();
-    } else {
+    if (!mqttClient.checkAlive())
       requestRestart = true;
-    }
 
     #if defined(TH) && defined(TEMP)
     tempReport = true;
@@ -174,9 +171,9 @@ void checkStatus() {
   }
 }
 
-void checkChannelStatus(int index) {
-  if (!hardware.shouldSendState(index)) return;
-  mqttClient.publishChannel(index, hardware.checkState(index));
+void checkChannelStatus(int ch) {
+  if (hardware.shouldSendState(ch))
+    mqttClient.publishChannel(ch, hardware.checkState(ch));
 }
 
 #ifdef WS

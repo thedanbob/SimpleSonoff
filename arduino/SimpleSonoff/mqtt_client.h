@@ -20,14 +20,15 @@ namespace SimpleSonoff {
     std::unique_ptr<WiFiClient> wifiClient;
     std::unique_ptr<PubSubClient> pubSubClient;
     char uid[16];
+    bool restart;
+    void heartbeat();
 
     public:
       MQTTClient(std::function<void(const MQTT::Publish&)> mqttCallback);
       char* UID();
       bool connect();
       void loop();
-      bool alive();
-      void heartbeat();
+      bool checkAlive();
       void publishChannel(int ch, String msg);
       void publishDebug(String msg);
       void publishTemp(String msg);
