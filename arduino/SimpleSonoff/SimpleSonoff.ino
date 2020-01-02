@@ -10,9 +10,6 @@
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#if defined(TH) && defined(TEMP)
-#include "DHT.h"
-#endif
 
 const char* header = "\n\n--------------  SimpleSonoff_v1.00  --------------";
 bool requestRestart = false;
@@ -20,27 +17,23 @@ unsigned long TasksTimer;
 SimpleSonoff::Hardware hardware;
 SimpleSonoff::MQTTClient mqttClient(hardware);
 
+#if defined(TH) && defined(TEMP)
+#include "temp.h"
+SimpleSonoff::Temp temp(hardware, mqttClient);
+#endif
+
 #ifdef ENABLE_OTA_UPDATES
 #include "ota_update.h"
 SimpleSonoff::OTAUpdate otaUpdate;
-#endif
-
-#if defined(TEMP) || defined(WS)
-const int optPin = 14;
 #endif
 
 #ifdef WS
 int lastWallSwitch = 1;
 #endif
 
-#if defined(TH) && defined(TEMP)
-DHT dht(optPin, DHTTYPE, 11);
-bool tempReport = false;
-#endif
-
 void setup() {
   #ifdef WS
-  pinMode(optPin, INPUT_PULLUP);
+  pinMode(OPT_PIN, INPUT_PULLUP);
   #endif
 
   Serial.begin(115200);
@@ -72,7 +65,7 @@ void loop() {
   #endif
 
   #if defined(TH) && defined(TEMP)
-  getTemp();
+  temp.reportTemp();
   #endif
 }
 
@@ -83,7 +76,7 @@ void timedTasks() {
       requestRestart = true;
 
     #if defined(TH) && defined(TEMP)
-    tempReport = true;
+    temp.doReport();
     #endif
   }
 }
@@ -115,41 +108,10 @@ void checkStatus() {
 
 #ifdef WS
 void checkWallSwitch() {
-  int wallSwitch = digitalRead(optPin);
+  int wallSwitch = digitalRead(OPT_PIN);
   if (wallSwitch != lastWallSwitch) {
     hardware.toggleWallSwitch();
   }
   lastWallSwitch = wallSwitch;
-}
-#endif
-
-#if defined(TH) && defined(TEMP)
-void getTemp() {
-  if (!tempReport) return;
-
-  Serial.print("DHT read . . . . . . . . . . . . . . . . . ");
-  float dhtH, dhtT, dhtHI;
-
-  dhtH = dht.readHumidity();
-  dhtT = dht.readTemperature(USE_FAHRENHEIT);
-  dhtHI = dht.computeHeatIndex(dhtT, dhtH, USE_FAHRENHEIT);
-
-  bool ledState = hardware.getLED();
-  hardware.blinkLED(100, 1);
-  hardware.setLED(ledState);
-
-  if (isnan(dhtH) || isnan(dhtT) || isnan(dhtHI)) {
-    #ifdef SIMPLE_SONOFF_DEBUG
-    mqttClient.publishDebug("\"DHT Read Error\"");
-    #endif
-    Serial.println("DHT read error");
-    tempReport = false;
-    return;
-  }
-
-  String pubString = "{\"Temp\": "+String(dhtT)+", "+"\"Humidity\": "+String(dhtH)+", "+"\"HeatIndex\": "+String(dhtHI) + "}";
-  mqttClient.publishTemp(pubString);
-  Serial.println("DHT read OK");
-  tempReport = false;
 }
 #endif
