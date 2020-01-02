@@ -1,10 +1,11 @@
 #ifndef SIMPLE_SONOFF_MQTT_H
 #define SIMPLE_SONOFF_MQTT_H
 
+#include <memory>
 #include <WiFiClient.h>
 #include <PubSubClient.h>
-#include "hardware.h"
 #include "config.h"
+#include "hardware.h"
 
 namespace SimpleSonoff {
   class MQTTClient {
