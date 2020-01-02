@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <Ticker.h>
-#include "relay.h"
+#include "hardware.h"
 
 namespace SimpleSonoff {
   const int Hardware::ledPin = 13;
@@ -99,7 +99,7 @@ namespace SimpleSonoff {
     digitalWrite(ledPin, !on); // HIGH = off
   }
 
-  void Hardware::setHardware(int ch, bool state) {
+  void Hardware::setRelay(int ch, bool state) {
     #ifdef ORIG
     digitalWrite(ledPin, !state);
     #endif

@@ -22,7 +22,7 @@ namespace SimpleSonoff {
     void buttonHandler(int ch);
 
     public:
-      Relay();
+      Hardware();
       void init();
       void finishInit();
       void blinkLED(int duration, int n);
