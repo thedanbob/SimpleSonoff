@@ -17,8 +17,8 @@
 const char* header = "\n\n--------------  SimpleSonoff_v1.00  --------------";
 bool requestRestart = false;
 unsigned long TasksTimer;
-SimpleSonoff::MQTTClient mqttClient(mqttCallback);
 SimpleSonoff::Hardware hardware;
+SimpleSonoff::MQTTClient mqttClient(hardware);
 
 #ifdef ENABLE_OTA_UPDATES
 #include "ota_update.h"
@@ -79,26 +79,6 @@ void loop() {
   #endif
 }
 
-void mqttCallback(const MQTT::Publish& pub) {
-  int index = mqttClient.topicToChannel(pub.topic());
-  String cmd = pub.payload_string();
-
-  if (cmd == "reset") {
-    requestRestart = true;
-    return;
-  }
-
-  if (cmd == "stat") {
-    // Skip to the end
-  } else if (cmd == "on") {
-    hardware.setRelay(index, true);
-  } else if (cmd == "off") {
-    hardware.setRelay(index, false);
-  } else {
-    return; // Ignore other commands
-  }
-}
-
 void timedTasks() {
   if ((millis() > TasksTimer + (CONNECT_UPD_FREQ*60000)) || (millis() < TasksTimer)) {
     TasksTimer = millis();
@@ -112,16 +92,16 @@ void timedTasks() {
 }
 
 void checkStatus() {
-  checkChannelStatus(0);
+  mqttClient.checkChannelStatus(0);
   #ifdef MULTI
   #ifndef DISABLE_CH_2
-  checkChannelStatus(1);
+  mqttClient.checkChannelStatus(1);
   #endif
   #ifndef DISABLE_CH_3
-  checkChannelStatus(2);
+  mqttClient.checkChannelStatus(2);
   #endif
   #ifndef DISABLE_CH_4
-  checkChannelStatus(3);
+  mqttClient.checkChannelStatus(3);
   #endif
   #endif
 
@@ -134,11 +114,6 @@ void checkStatus() {
     hardware.blinkLED(400, 4);
     ESP.restart();
   }
-}
-
-void checkChannelStatus(int ch) {
-  if (hardware.shouldSendState(ch))
-    mqttClient.publishChannel(ch, hardware.checkState(ch));
 }
 
 #ifdef WS

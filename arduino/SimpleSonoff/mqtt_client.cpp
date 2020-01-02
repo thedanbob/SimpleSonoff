@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include "hardware.h"
 #include "mqtt_client.h"
 
 namespace SimpleSonoff {
@@ -13,11 +14,15 @@ namespace SimpleSonoff {
   const String MQTTClient::statTopic[] = {MQTT_BASE_TOPIC"/stat"};
   #endif
 
-  MQTTClient::MQTTClient(std::function<void(const MQTT::Publish&)> mqttCallback) {
+  MQTTClient::MQTTClient(SimpleSonoff::Hardware hardware) {
     this->restart = false;
     this->wifiClient.reset(new WiFiClient());
     this->pubSubClient.reset(new PubSubClient(*this->wifiClient, MQTT_SERVER, MQTT_PORT));
-    this->pubSubClient->set_callback(mqttCallback);
+    this->hardware.reset(&hardware);
+
+    this->pubSubClient->set_callback([this](const MQTT::Publish& pub){
+      this->callback(pub);
+    });
     sprintf(this->uid, "Sonoff_%06X", ESP.getChipId());
   }
 
@@ -111,8 +116,9 @@ namespace SimpleSonoff {
     this->pubSubClient->publish(MQTT::Publish(MQTT_BASE_TOPIC"/heartbeat", "OK").set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
-  void MQTTClient::publishChannel(int ch, String msg) {
-    this->pubSubClient->publish(MQTT::Publish(statTopic[ch], msg).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+  void MQTTClient::checkChannelStatus(int ch) {
+    if (!this->hardware->shouldSendState(ch)) return;
+    this->pubSubClient->publish(MQTT::Publish(statTopic[ch], this->hardware->checkState(ch)).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
   void MQTTClient::publishDebug(String msg) {
@@ -123,9 +129,15 @@ namespace SimpleSonoff {
     this->pubSubClient->publish(MQTT::Publish(MQTT_BASE_TOPIC"/temp", msg).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
-  int MQTTClient::topicToChannel(String topic) {
-    int ch = 0;
+  void MQTTClient::callback(const MQTT::Publish& pub) {
+    String cmd = pub.payload_string();
+    if (cmd == "reset") {
+      this->restart = true;
+      return;
+    }
 
+    int ch = 0;
+    String topic = pub.topic();
     #ifdef MULTI
     if (topic == cmdTopic[1]) ch = 0;
     #ifndef DISABLE_CH_2
@@ -139,6 +151,14 @@ namespace SimpleSonoff {
     #endif
     #endif
 
-    return ch;
+    if (cmd == "stat") {
+      this->hardware->setSendState(ch);
+    } else if (cmd == "on") {
+      this->hardware->setRelay(ch, true);
+    } else if (cmd == "off") {
+      this->hardware->setRelay(ch, false);
+    } else {
+      return; // Ignore other commands
+    }
   }
 }
