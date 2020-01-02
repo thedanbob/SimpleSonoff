@@ -10,20 +10,20 @@
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#ifdef ENABLE_OTA_UPDATES
-#include <ArduinoOTA.h>
-#endif
 #if defined(TH) && defined(TEMP)
 #include "DHT.h"
 #endif
 
-const char* header     = "\n\n--------------  SimpleSonoff_v1.00  --------------";
-
+const char* header = "\n\n--------------  SimpleSonoff_v1.00  --------------";
 bool requestRestart = false;
-bool OTAupdate = false;
 unsigned long TasksTimer;
 SimpleSonoff::MQTTClient mqttClient(mqttCallback);
 SimpleSonoff::Hardware hardware;
+
+#ifdef ENABLE_OTA_UPDATES
+#include "ota_update.h"
+SimpleSonoff::OTAUpdate otaUpdate;
+#endif
 
 #if defined(TEMP) || defined(WS)
 const int optPin = 14;
@@ -50,7 +50,7 @@ void setup() {
   if (!mqttClient.connect()) return;
 
   #ifdef ENABLE_OTA_UPDATES
-  setupOTA();
+  otaUpdate.setup(mqttClient.UID(), hardware);
   #endif
 
   Serial.println(" DONE");
@@ -62,62 +62,22 @@ void setup() {
 
 void loop() {
   #ifdef ENABLE_OTA_UPDATES
-  ArduinoOTA.handle();
+  otaUpdate.handle();
+  if (otaUpdate.doUpdate()) return;
   #endif
 
-  if (OTAupdate == false) {
-    mqttClient.loop();
-    timedTasks();
-    checkStatus();
+  mqttClient.loop();
+  timedTasks();
+  checkStatus();
 
-    #ifdef WS
-    checkWallSwitch();
-    #endif
+  #ifdef WS
+  checkWallSwitch();
+  #endif
 
-    #if defined(TH) && defined(TEMP)
-    getTemp();
-    #endif
-  }
+  #if defined(TH) && defined(TEMP)
+  getTemp();
+  #endif
 }
-
-#ifdef ENABLE_OTA_UPDATES
-void setupOTA() {
-  ArduinoOTA.setHostname(mqttClient.UID());
-
-  ArduinoOTA.onStart([]() {
-    OTAupdate = true;
-    hardware.blinkLED(400, 2);
-    hardware.setLED(false);
-    Serial.println("OTA Update Initiated . . .");
-  });
-
-  ArduinoOTA.onEnd([]() {
-    Serial.println("\nOTA Update Ended . . .s");
-    OTAupdate = false;
-    requestRestart = true;
-  });
-
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    hardware.setLED(true);
-    delay(5);
-    hardware.setLED(false);
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
-
-  ArduinoOTA.onError([](ota_error_t error) {
-    hardware.blinkLED(40, 2);
-    OTAupdate = false;
-    Serial.printf("OTA Error [%u] ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println(". . . . . . . . . . . . . . . Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println(". . . . . . . . . . . . . . . Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println(". . . . . . . . . . . . . . . Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println(". . . . . . . . . . . . . . . Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println(". . . . . . . . . . . . . . . End Failed");
-  });
-
-  ArduinoOTA.begin();
-}
-#endif
 
 void mqttCallback(const MQTT::Publish& pub) {
   int index = mqttClient.topicToChannel(pub.topic());
@@ -165,7 +125,12 @@ void checkStatus() {
   #endif
   #endif
 
-  if (requestRestart || hardware.requestRestart()) {
+  requestRestart |= hardware.requestRestart();
+  #ifdef ENABLE_OTA_UPDATES
+  requestRestart |= otaUpdate.requestRestart();
+  #endif
+
+  if (requestRestart) {
     hardware.blinkLED(400, 4);
     ESP.restart();
   }
