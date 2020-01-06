@@ -4,10 +4,16 @@
 #include "hardware.h"
 
 namespace SimpleSonoff {
-  const int Hardware::ledPin = 13;
-  const int Hardware::btnPin[] = {0, 9, 10, 14};
-  const int Hardware::relayPin[] = {12, 5, 4, 15};
+  const int Hardware::ledPin = LED_PIN;
+  #ifdef MULTI
+  const int Hardware::btnPin[] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3, BTN_PIN_4};
+  const int Hardware::relayPin[] = {RELAY_PIN_1, RELAY_PIN_2, RELAY_PIN_3, RELAY_PIN_4};
   const bool Hardware::rememberState[] = {REMEMBER_RELAY_STATE_1, REMEMBER_RELAY_STATE_2, REMEMBER_RELAY_STATE_3, REMEMBER_RELAY_STATE_4};
+  #else
+  const int Hardware::btnPin[] = {BTN_PIN_1};
+  const int Hardware::relayPin[] = {RELAY_PIN_1};
+  const bool Hardware::rememberState[] = {REMEMBER_RELAY_STATE_1};
+  #endif
   const String Hardware::stateName[] = {"off", "on"};
 
   Hardware::Hardware() {

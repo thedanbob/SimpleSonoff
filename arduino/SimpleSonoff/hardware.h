@@ -3,14 +3,20 @@
 
 #include <Arduino.h>
 #include <Ticker.h>
-#include "config.h"
+#include "defines.h"
 
 namespace SimpleSonoff {
   class Hardware {
     static const int ledPin;
+    #ifdef MULTI
     static const int btnPin[4];
     static const int relayPin[4];
     static const bool rememberState[4];
+    #else
+    static const int btnPin[1];
+    static const int relayPin[1];
+    static const bool rememberState[1];
+    #endif
     static const String stateName[2];
 
     bool relayState[4];

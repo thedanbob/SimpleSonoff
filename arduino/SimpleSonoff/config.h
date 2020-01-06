@@ -17,8 +17,7 @@
 //#define TEMP                                         // Uncomment for DHT11/22 support (TH only) **Must install 'DHT sensor library' (Adafruit) & 'Adafruit Unified Sensor' library.
 //#define WS                                           // Uncomment for external wallswitch support
 
-#define OPT_PIN 14                                     // Do not change
-#define DHTTYPE DHT22                                  // Set to 'DHT11' or 'DHT22'. (Only applies if using TEMP)  **Must connect to the mains power for temperature readings to be sent.
+#define DHTTYPE DHT22                                  // Set to 'DHT11' or 'DHT22'. (Only applies if using TEMP) **Must connect to the mains power for temperature readings to be sent.
 #define USE_FAHRENHEIT false                           // Set to 'true' to use Fahrenheit. (Only applies if using TEMP)
 
 #define MQTT_SERVER "192.168.0.100"                    // Your mqtt server ip address

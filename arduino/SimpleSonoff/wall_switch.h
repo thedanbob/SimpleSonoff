@@ -2,7 +2,7 @@
 #define SIMPLE_SONOFF_WALL_SWITCH_H
 
 #include <memory>
-#include "config.h"
+#include "defines.h"
 #include "hardware.h"
 
 namespace SimpleSonoff {

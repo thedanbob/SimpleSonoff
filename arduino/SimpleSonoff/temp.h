@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <DHT.h>
-#include "config.h"
+#include "defines.h"
 #include "hardware.h"
 #include "mqtt_client.h"
 
