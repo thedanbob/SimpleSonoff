@@ -1,7 +1,6 @@
 #ifndef SIMPLE_SONOFF_WALL_SWITCH_H
 #define SIMPLE_SONOFF_WALL_SWITCH_H
 
-#include <memory>
 #include "defines.h"
 #include "hardware.h"
 

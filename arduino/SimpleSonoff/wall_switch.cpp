@@ -1,5 +1,3 @@
-#include "config.h"
-#include "hardware.h"
 #include "wall_switch.h"
 
 namespace SimpleSonoff {

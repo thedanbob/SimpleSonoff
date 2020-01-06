@@ -1,6 +1,4 @@
-#include <Arduino.h>
 #include <EEPROM.h>
-#include <Ticker.h>
 #include "hardware.h"
 
 namespace SimpleSonoff {

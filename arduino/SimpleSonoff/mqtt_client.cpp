@@ -1,6 +1,4 @@
-#include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include "hardware.h"
 #include "mqtt_client.h"
 
 namespace SimpleSonoff {
