@@ -57,7 +57,7 @@ namespace SimpleSonoff {
     digitalWrite(relayPin[ch], LOW);
 
     this->relayState[ch] = EEPROM.read(ch);
-    if (rememberState[ch] && this->relayState[ch] == 1) {
+    if (rememberState[ch] && this->relayState[ch]) {
       #ifdef ORIG
       digitalWrite(ledPin, LOW);
       #endif
