@@ -22,9 +22,9 @@ namespace SimpleSonoff {
   }
 
   void Hardware::setup() {
+    EEPROM.begin(4);
     pinMode(ledPin, OUTPUT);
     this->setLED(false);
-    EEPROM.begin(4);
 
     this->setupChannel(0); // Channel 1
     #ifdef MULTI
@@ -110,12 +110,12 @@ namespace SimpleSonoff {
     }
   }
 
-  void Hardware::setSendState(int ch) {
-    this->sendState[ch] = true;
+  bool Hardware::getSendState(int ch) {
+    return this->sendState[ch];
   }
 
-  bool Hardware::shouldSendState(int ch) {
-    return this->sendState[ch];
+  void Hardware::setSendState(int ch) {
+    this->sendState[ch] = true;
   }
 
   bool Hardware::checkState(int ch) {
@@ -126,12 +126,4 @@ namespace SimpleSonoff {
   bool Hardware::requestRestart() {
     return this->restart;
   }
-
-  #ifdef WS
-  void Hardware::toggleWallSwitch() {
-    digitalWrite(relayPin[0], !digitalRead(relayPin[0]));
-    digitalWrite(ledPin, !digitalRead(ledPin));
-    this->sendState[0] = true;
-  }
-  #endif
 }

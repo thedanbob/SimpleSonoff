@@ -116,7 +116,7 @@ namespace SimpleSonoff {
   }
 
   void MQTTClient::checkChannelStatus(int ch) {
-    if (!this->hardware->shouldSendState(ch)) return;
+    if (!this->hardware->getSendState(ch)) return;
     String state = this->hardware->checkState(ch) ? "on" : "off";
     Serial.print("Channel "); Serial.print(ch + 1); Serial.println(" " + state);
     this->pubSubClient->publish(MQTT::Publish(statTopic[ch], state).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));

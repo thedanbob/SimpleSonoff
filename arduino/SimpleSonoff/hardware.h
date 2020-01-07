@@ -25,7 +25,6 @@ namespace SimpleSonoff {
 
     void setupChannel(int ch);
     void buttonHandler(int ch);
-    bool getRelay(int ch);
 
     public:
       Hardware();
@@ -34,14 +33,12 @@ namespace SimpleSonoff {
       void blinkLED(int duration, int n);
       bool getLED();
       void setLED(bool on);
+      bool getRelay(int ch);
       void setRelay(int ch, bool state);
+      bool getSendState(int ch);
       void setSendState(int ch);
-      bool shouldSendState(int ch);
       bool checkState(int ch);
       bool requestRestart();
-      #ifdef WS
-      void toggleWallSwitch();
-      #endif
   };
 }
 

@@ -1,4 +1,3 @@
-#ifdef WS
 #include "wall_switch.h"
 
 namespace SimpleSonoff {
@@ -14,9 +13,8 @@ namespace SimpleSonoff {
   void WallSwitch::check() {
     bool state = digitalRead(OPT_PIN);
     if (state != this->lastState) {
-      this->hardware->toggleWallSwitch();
+      hardware->setRelay(0, !hardware->getRelay(0));
     }
     this->lastState = state;
   }
 }
-#endif
