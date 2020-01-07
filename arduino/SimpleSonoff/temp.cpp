@@ -1,3 +1,4 @@
+#ifdef TEMP
 #include <Arduino.h>
 #include "temp.h"
 
@@ -42,3 +43,4 @@ namespace SimpleSonoff {
     this->report = false;
   }
 }
+#endif

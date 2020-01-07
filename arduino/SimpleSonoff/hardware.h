@@ -17,7 +17,6 @@ namespace SimpleSonoff {
     static const int relayPin[1];
     static const bool rememberState[1];
     #endif
-    static const String stateName[2];
 
     bool sendState[4];
     unsigned long btnCount[4];
@@ -38,7 +37,7 @@ namespace SimpleSonoff {
       void setRelay(int ch, bool state);
       void setSendState(int ch);
       bool shouldSendState(int ch);
-      String checkState(int ch);
+      bool checkState(int ch);
       bool requestRestart();
       #ifdef WS
       void toggleWallSwitch();

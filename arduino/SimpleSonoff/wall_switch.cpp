@@ -1,3 +1,4 @@
+#ifdef WS
 #include "wall_switch.h"
 
 namespace SimpleSonoff {
@@ -18,3 +19,4 @@ namespace SimpleSonoff {
     this->lastState = state;
   }
 }
+#endif

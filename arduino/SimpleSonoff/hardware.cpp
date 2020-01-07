@@ -12,7 +12,6 @@ namespace SimpleSonoff {
   const int Hardware::relayPin[] = {RELAY_PIN_1};
   const bool Hardware::rememberState[] = {REMEMBER_RELAY_STATE_1};
   #endif
-  const String Hardware::stateName[] = {"off", "on"};
 
   Hardware::Hardware() {
     for (int i = 0; i < 4; i++) {
@@ -25,7 +24,7 @@ namespace SimpleSonoff {
   void Hardware::setup() {
     pinMode(ledPin, OUTPUT);
     this->setLED(false);
-    EEPROM.begin(8);
+    EEPROM.begin(4);
 
     this->setupChannel(0); // Channel 1
     #ifdef MULTI
@@ -70,7 +69,7 @@ namespace SimpleSonoff {
         this->setRelay(ch, !this->getRelay(ch));
       }
       else if (this->btnCount[ch] > 40) {
-        Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
+        Serial.println("\n\nSonoff rebooting, please wait");
         this->restart = true;
       }
       this->btnCount[ch] = 0;
@@ -91,7 +90,7 @@ namespace SimpleSonoff {
   }
 
   void Hardware::setLED(bool on) {
-    digitalWrite(ledPin, !on); // HIGH = off
+    digitalWrite(ledPin, !on); // Sonoff LED is inverted, HIGH = off
   }
 
   bool Hardware::getRelay(int ch) {
@@ -119,12 +118,9 @@ namespace SimpleSonoff {
     return this->sendState[ch];
   }
 
-  String Hardware::checkState(int ch) {
-    int state = this->getRelay(ch);
-
-    Serial.print("Hardware "); Serial.print(ch + 1); Serial.print(" "); Serial.println(stateName[state]);
+  bool Hardware::checkState(int ch) {
     this->sendState[ch] = false;
-    return stateName[state];
+    return this->getRelay(ch);
   }
 
   bool Hardware::requestRestart() {
