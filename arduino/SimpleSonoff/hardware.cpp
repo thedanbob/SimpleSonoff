@@ -16,7 +16,6 @@ namespace SimpleSonoff {
 
   Hardware::Hardware() {
     for (int i = 0; i < 4; i++) {
-      this->relayState[i] = false;
       this->sendState[i] = false;
       this->btnCount[i] = 0;
     }
@@ -25,7 +24,7 @@ namespace SimpleSonoff {
 
   void Hardware::setup() {
     pinMode(ledPin, OUTPUT);
-    digitalWrite(ledPin, HIGH);
+    this->setLED(false);
     EEPROM.begin(8);
 
     this->setupChannel(0); // Channel 1
@@ -45,9 +44,9 @@ namespace SimpleSonoff {
   void Hardware::postSetup() {
     this->blinkLED(40, 8);
     #ifdef ORIG
-    digitalWrite(ledPin, !digitalRead(relayPin[0]));
+    this->setLED(this->getRelay(0));
     #else
-    digitalWrite(ledPin, LOW);
+    this->setLED(true);
     #endif
   }
 
@@ -56,12 +55,8 @@ namespace SimpleSonoff {
     pinMode(relayPin[ch], OUTPUT);
     digitalWrite(relayPin[ch], LOW);
 
-    this->relayState[ch] = EEPROM.read(ch);
-    if (rememberState[ch] && this->relayState[ch]) {
-      #ifdef ORIG
-      digitalWrite(ledPin, LOW);
-      #endif
-      digitalWrite(relayPin[ch], HIGH);
+    if (rememberState[ch]) {
+      this->setRelay(ch, EEPROM.read(ch));
     }
 
     this->btnTimer[ch].attach(0.05, std::bind(&Hardware::buttonHandler, this, ch));
@@ -72,11 +67,7 @@ namespace SimpleSonoff {
       this->btnCount[ch]++;
     } else {
       if (this->btnCount[ch] > 1 && this->btnCount[ch] <= 40) {
-        #ifdef ORIG
-        digitalWrite(ledPin, !digitalRead(ledPin));
-        #endif
-        digitalWrite(relayPin[ch], !digitalRead(relayPin[ch]));
-        this->sendState[ch] = true;
+        this->setRelay(ch, !this->getRelay(ch));
       }
       else if (this->btnCount[ch] > 40) {
         Serial.println("\n\nSonoff Rebooting . . . . . . . . Please Wait");
@@ -88,9 +79,9 @@ namespace SimpleSonoff {
 
   void Hardware::blinkLED(int duration, int n) {
     for(int i = 0; i < n; i++)  {
-      digitalWrite(ledPin, HIGH);
+      this->setLED(true);
       delay(duration);
-      digitalWrite(ledPin, LOW);
+      this->setLED(false);
       delay(duration);
     }
   }
@@ -103,12 +94,21 @@ namespace SimpleSonoff {
     digitalWrite(ledPin, !on); // HIGH = off
   }
 
+  bool Hardware::getRelay(int ch) {
+    return digitalRead(relayPin[ch]);
+  }
+
   void Hardware::setRelay(int ch, bool state) {
     #ifdef ORIG
-    digitalWrite(ledPin, !state);
+    this->setLED(state);
     #endif
     digitalWrite(relayPin[ch], state);
     this->setSendState(ch);
+
+    if (rememberState[ch]) {
+      EEPROM.write(ch, state);
+      EEPROM.commit();
+    }
   }
 
   void Hardware::setSendState(int ch) {
@@ -120,18 +120,9 @@ namespace SimpleSonoff {
   }
 
   String Hardware::checkState(int ch) {
-    #ifdef ORIG
-    int state = this->getLED();
-    #else
-    int state = digitalRead(relayPin[ch]);
-    #endif
+    int state = this->getRelay(ch);
 
-    if (rememberState[ch]) {
-      EEPROM.write(ch, state);
-      EEPROM.commit();
-    }
-
-    Serial.print("Hardware "); Serial.print(ch + 1); Serial.print(" . . . . . . . . . . . . . . . . . . "); Serial.println(stateName[state]);
+    Serial.print("Hardware "); Serial.print(ch + 1); Serial.print(" "); Serial.println(stateName[state]);
     this->sendState[ch] = false;
     return stateName[state];
   }

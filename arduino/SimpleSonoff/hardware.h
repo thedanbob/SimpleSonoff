@@ -19,7 +19,6 @@ namespace SimpleSonoff {
     #endif
     static const String stateName[2];
 
-    bool relayState[4];
     bool sendState[4];
     unsigned long btnCount[4];
     Ticker btnTimer[4];
@@ -27,6 +26,7 @@ namespace SimpleSonoff {
 
     void setupChannel(int ch);
     void buttonHandler(int ch);
+    bool getRelay(int ch);
 
     public:
       Hardware();
