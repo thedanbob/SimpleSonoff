@@ -136,13 +136,15 @@ namespace SimpleSonoff {
     return stateName[state];
   }
 
+  bool Hardware::requestRestart() {
+    return this->restart;
+  }
+
+  #ifdef WS
   void Hardware::toggleWallSwitch() {
     digitalWrite(relayPin[0], !digitalRead(relayPin[0]));
     digitalWrite(ledPin, !digitalRead(ledPin));
     this->sendState[0] = true;
   }
-
-  bool Hardware::requestRestart() {
-    return this->restart;
-  }
+  #endif
 }

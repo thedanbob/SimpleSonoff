@@ -39,8 +39,10 @@ namespace SimpleSonoff {
       void setSendState(int ch);
       bool shouldSendState(int ch);
       String checkState(int ch);
-      void toggleWallSwitch();
       bool requestRestart();
+      #ifdef WS
+      void toggleWallSwitch();
+      #endif
   };
 }
 
