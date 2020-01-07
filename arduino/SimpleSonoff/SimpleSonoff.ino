@@ -32,6 +32,11 @@ SimpleSonoff::Temp temp(&hardware, &mqttClient);
 SimpleSonoff::OTAUpdate otaUpdate;
 #endif
 
+#ifdef ENABLE_HTTP_UPDATES
+#include "http_update.h"
+SimpleSonoff::HTTPUpdate httpUpdate;
+#endif
+
 void setup() {
   Serial.begin(115200);
   Serial.println(header);
@@ -47,6 +52,10 @@ void setup() {
   otaUpdate.setup(mqttClient.UID(), hardware);
   #endif
 
+  #ifdef ENABLE_HTTP_UPDATES
+  httpUpdate.setup(hardware);
+  #endif
+
   Serial.println("\n---------------------  Logs  ---------------------\n");
   hardware.postSetup();
 }
@@ -55,6 +64,10 @@ void loop() {
   #ifdef ENABLE_OTA_UPDATES
   otaUpdate.handle();
   if (otaUpdate.doUpdate()) return;
+  #endif
+
+  #ifdef ENABLE_HTTP_UPDATES
+  if (httpUpdate.inProgress()) return
   #endif
 
   mqttClient.loop();
@@ -78,6 +91,10 @@ void timedTasks() {
 
     #if defined(TH) && defined(TEMP)
     temp.doReport();
+    #endif
+
+    #ifdef ENABLE_HTTP_UPDATES
+    httpUpdate.checkUpdate();
     #endif
   }
 }

@@ -41,6 +41,11 @@
 
 #define ENABLE_OTA_UPDATES                             // Enable updates via the Arduino IDE
 
+#define ENABLE_HTTP_UPDATES                            // Enable updates via HTTP server
+#define HTTP_UPDATE_HOST "192.168.0.100"               // HTTP update server ip address
+#define HTTP_UPDATE_PORT 80                            // HTTP update server port
+#define HTTP_UPDATE_PATH "file.bin"                    // Path to get update file
+
 // Uncomment below to disable MULTI channels 2-4 (channel 1 is always enabled)
 //#define DISABLE_CH_2
 //#define DISABLE_CH_3
