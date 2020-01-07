@@ -63,7 +63,7 @@ void setup() {
 void loop() {
   #ifdef ENABLE_OTA_UPDATES
   otaUpdate.handle();
-  if (otaUpdate.doUpdate()) return;
+  if (otaUpdate.inProgress()) return;
   #endif
 
   #ifdef ENABLE_HTTP_UPDATES

@@ -47,7 +47,7 @@ namespace SimpleSonoff {
     ArduinoOTA.handle();
   }
 
-  bool OTAUpdate::doUpdate() {
+  bool OTAUpdate::inProgress() {
     return this->update;
   }
 }
