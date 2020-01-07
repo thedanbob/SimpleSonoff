@@ -7,14 +7,12 @@
 namespace SimpleSonoff {
   class OTAUpdate {
     bool update;
-    bool restart;
 
     public:
       OTAUpdate();
       void setup(char uid[8], SimpleSonoff::Hardware hardware);
       void handle();
       bool doUpdate();
-      bool requestRestart();
   };
 }
 

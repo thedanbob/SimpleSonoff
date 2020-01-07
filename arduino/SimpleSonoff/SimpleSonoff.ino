@@ -114,10 +114,6 @@ void checkStatus() {
   #endif
 
   requestRestart |= hardware.requestRestart();
-  #ifdef ENABLE_OTA_UPDATES
-  requestRestart |= otaUpdate.requestRestart();
-  #endif
-
   if (requestRestart) {
     hardware.blinkLED(400, 4);
     ESP.restart();

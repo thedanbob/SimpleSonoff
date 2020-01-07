@@ -5,7 +5,6 @@
 namespace SimpleSonoff {
   OTAUpdate::OTAUpdate() {
     this->update = false;
-    this->restart = false;
   }
 
   void OTAUpdate::setup(char uid[8], SimpleSonoff::Hardware hardware) {
@@ -21,7 +20,6 @@ namespace SimpleSonoff {
     ArduinoOTA.onEnd([this]() {
       Serial.println("\nOTA update done");
       this->update = false;
-      this->restart = true;
     });
 
     ArduinoOTA.onProgress([&hardware](unsigned int progress, unsigned int total) {
@@ -51,9 +49,5 @@ namespace SimpleSonoff {
 
   bool OTAUpdate::doUpdate() {
     return this->update;
-  }
-
-  bool OTAUpdate::requestRestart() {
-    return this->restart;
   }
 }
