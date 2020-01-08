@@ -3,9 +3,9 @@
 #include "ota_update.h"
 
 namespace SimpleSonoff {
-  OTAUpdate::OTAUpdate() {
-    this->update = false;
-  }
+  OTAUpdate::OTAUpdate() :
+    update(false)
+  {}
 
   void OTAUpdate::setup(char uid[8], SimpleSonoff::Hardware hardware) {
     ArduinoOTA.setHostname(uid);

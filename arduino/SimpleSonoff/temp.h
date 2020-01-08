@@ -1,7 +1,6 @@
 #ifndef SIMPLE_SONOFF_TEMP_H
 #define SIMPLE_SONOFF_TEMP_H
 
-#include <memory>
 #include <DHT.h>
 #include "defines.h"
 #include "hardware.h"
@@ -10,7 +9,7 @@
 namespace SimpleSonoff {
   class Temp {
     bool report;
-    std::unique_ptr<DHT> dht;
+    DHT dht;
     SimpleSonoff::Hardware* hardware;
     SimpleSonoff::MQTTClient* mqttClient;
 

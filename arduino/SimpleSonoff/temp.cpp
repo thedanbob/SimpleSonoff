@@ -2,12 +2,12 @@
 #include "temp.h"
 
 namespace SimpleSonoff {
-  Temp::Temp(SimpleSonoff::Hardware* h, SimpleSonoff::MQTTClient* m) {
-    this->report = false;
-    this->dht.reset(new DHT(OPT_PIN, DHTTYPE, 11));
-    this->hardware = h;
-    this->mqttClient = m;
-  }
+  Temp::Temp(SimpleSonoff::Hardware* h, SimpleSonoff::MQTTClient* m) :
+    report(false),
+    dht(OPT_PIN, DHTTYPE, 11),
+    hardware(h),
+    mqttClient(m)
+  {}
 
   void Temp::doReport() {
     this->report = true;
@@ -19,9 +19,9 @@ namespace SimpleSonoff {
     Serial.print("DHT read . . . ");
     float dhtH, dhtT, dhtHI;
 
-    dhtH = dht->readHumidity();
-    dhtT = dht->readTemperature(USE_FAHRENHEIT);
-    dhtHI = dht->computeHeatIndex(dhtT, dhtH, USE_FAHRENHEIT);
+    dhtH = dht.readHumidity();
+    dhtT = dht.readTemperature(USE_FAHRENHEIT);
+    dhtHI = dht.computeHeatIndex(dhtT, dhtH, USE_FAHRENHEIT);
 
     bool ledState = hardware->getLED();
     this->hardware->blinkLED(100, 1);

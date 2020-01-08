@@ -3,9 +3,9 @@
 #include "http_update.h"
 
 namespace SimpleSonoff {
-  HTTPUpdate::HTTPUpdate() {
-    this->update = false;
-  }
+  HTTPUpdate::HTTPUpdate() :
+    update(false)
+  {}
 
   void HTTPUpdate::setup(SimpleSonoff::Hardware hardware) {
     ESPhttpUpdate.setLedPin(LED_PIN, LOW);

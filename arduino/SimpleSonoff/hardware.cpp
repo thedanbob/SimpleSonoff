@@ -13,13 +13,11 @@ namespace SimpleSonoff {
   const bool Hardware::rememberState[] = {REMEMBER_RELAY_STATE_1};
   #endif
 
-  Hardware::Hardware() {
-    for (int i = 0; i < 4; i++) {
-      this->sendState[i] = false;
-      this->btnCount[i] = 0;
-    }
-    this->restart = false;
-  }
+  Hardware::Hardware() :
+    restart(false),
+    sendState({false, false, false, false}),
+    btnCount({0, 0, 0, 0})
+  {}
 
   void Hardware::setup() {
     EEPROM.begin(4);

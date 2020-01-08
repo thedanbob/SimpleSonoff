@@ -1,7 +1,6 @@
 #ifndef SIMPLE_SONOFF_MQTT_H
 #define SIMPLE_SONOFF_MQTT_H
 
-#include <memory>
 #include <Arduino.h>
 #include <WiFiClient.h>
 #include <PubSubClient.h>
@@ -20,8 +19,8 @@ namespace SimpleSonoff {
     static const String statTopic[1];
     #endif
 
-    std::unique_ptr<WiFiClient> wifiClient;
-    std::unique_ptr<PubSubClient> pubSubClient;
+    WiFiClient wifiClient;
+    PubSubClient pubSubClient;
     SimpleSonoff::Hardware* hardware;
     char uid[16];
     bool restart;

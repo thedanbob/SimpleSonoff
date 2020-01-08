@@ -12,13 +12,13 @@ namespace SimpleSonoff {
   const String MQTTClient::statTopic[] = {MQTT_BASE_TOPIC"/stat"};
   #endif
 
-  MQTTClient::MQTTClient(SimpleSonoff::Hardware* h) {
-    this->restart = false;
-    this->wifiClient.reset(new WiFiClient());
-    this->pubSubClient.reset(new PubSubClient(*this->wifiClient, MQTT_SERVER, MQTT_PORT));
-    this->hardware = h;
-
-    this->pubSubClient->set_callback([this](const MQTT::Publish& pub){
+  MQTTClient::MQTTClient(SimpleSonoff::Hardware* h) :
+    restart(false),
+    wifiClient(),
+    pubSubClient(this->wifiClient, MQTT_SERVER, MQTT_PORT),
+    hardware(h)
+  {
+    this->pubSubClient.set_callback([this](const MQTT::Publish& pub){
       this->callback(pub);
     });
     sprintf(this->uid, "Sonoff_%06X", ESP.getChipId());
@@ -53,12 +53,12 @@ namespace SimpleSonoff {
     delay(500);
 
     for (int r = 0; r < CONNECT_RETRIES; r++) {
-      if (this->pubSubClient->connect(MQTT::Connect(this->uid).set_keepalive(90).set_auth(MQTT_USER, MQTT_PASS))) break;
+      if (this->pubSubClient.connect(MQTT::Connect(this->uid).set_keepalive(90).set_auth(MQTT_USER, MQTT_PASS))) break;
       Serial.print(". ");
       delay(1000);
     }
 
-    if (!this->pubSubClient->connected()) {
+    if (!this->pubSubClient.connected()) {
       Serial.println("FAILED!");
       return false;
     }
@@ -80,13 +80,13 @@ namespace SimpleSonoff {
     subs.add_topic(cmdTopic[3], MQTT_QOS);
     #endif
     #endif
-    this->pubSubClient->subscribe(subs);
+    this->pubSubClient.subscribe(subs);
 
     return true;
   }
 
   void MQTTClient::loop() {
-    this->pubSubClient->loop();
+    this->pubSubClient.loop();
   }
 
   bool MQTTClient::checkAlive() {
@@ -95,7 +95,7 @@ namespace SimpleSonoff {
       return false;
     }
 
-    if (this->pubSubClient->connected()) {
+    if (this->pubSubClient.connected()) {
       Serial.println("MQTT broker connection ok");
       this->heartbeat();
     }
@@ -113,22 +113,22 @@ namespace SimpleSonoff {
     String pubString = "{\"UID\": "+String(this->uid)+", "+"\"Wifi RSSI\": "+String(rssi)+"dBM"+", "+"\"Topic\": "+String(MQTT_BASE_TOPIC)+", "+"\"Version\": "+version+"}";
     this->publishDebug(pubString);
     #endif
-    this->pubSubClient->publish(MQTT::Publish(MQTT_BASE_TOPIC"/heartbeat", "OK").set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+    this->pubSubClient.publish(MQTT::Publish(MQTT_BASE_TOPIC"/heartbeat", "OK").set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
   void MQTTClient::checkChannelStatus(int ch) {
     if (!this->hardware->getSendState(ch)) return;
     String state = this->hardware->checkState(ch) ? "on" : "off";
     Serial.print("Channel "); Serial.print(ch + 1); Serial.println(" " + state);
-    this->pubSubClient->publish(MQTT::Publish(statTopic[ch], state).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+    this->pubSubClient.publish(MQTT::Publish(statTopic[ch], state).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
   void MQTTClient::publishDebug(String msg) {
-    this->pubSubClient->publish(MQTT::Publish(MQTT_BASE_TOPIC"/debug", msg).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+    this->pubSubClient.publish(MQTT::Publish(MQTT_BASE_TOPIC"/debug", msg).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
   void MQTTClient::publishTemp(String msg) {
-    this->pubSubClient->publish(MQTT::Publish(MQTT_BASE_TOPIC"/temp", msg).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
+    this->pubSubClient.publish(MQTT::Publish(MQTT_BASE_TOPIC"/temp", msg).set_retain(MQTT_RETAIN).set_qos(MQTT_QOS));
   }
 
   void MQTTClient::callback(const MQTT::Publish& pub) {

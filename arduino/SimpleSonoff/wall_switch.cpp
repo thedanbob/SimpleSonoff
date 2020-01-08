@@ -1,10 +1,10 @@
 #include "wall_switch.h"
 
 namespace SimpleSonoff {
-  WallSwitch::WallSwitch(SimpleSonoff::Hardware* h) {
-    this->lastState = true;
-    this->hardware = h;
-  }
+  WallSwitch::WallSwitch(SimpleSonoff::Hardware* h) :
+    lastState(true),
+    hardware(h)
+  {}
 
   void WallSwitch::setup() {
     pinMode(OPT_PIN, INPUT_PULLUP);
