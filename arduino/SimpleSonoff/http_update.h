@@ -10,7 +10,7 @@ namespace SimpleSonoff {
 
     public:
       HTTPUpdate();
-      void setup(SimpleSonoff::Hardware hardware);
+      void setup(SimpleSonoff::Hardware &hardware);
       void checkUpdate();
       bool inProgress();
   };

@@ -7,7 +7,7 @@ namespace SimpleSonoff {
     update(false)
   {}
 
-  void HTTPUpdate::setup(SimpleSonoff::Hardware hardware) {
+  void HTTPUpdate::setup(SimpleSonoff::Hardware &hardware) {
     ESPhttpUpdate.setLedPin(LED_PIN, LOW);
 
     ESPhttpUpdate.onStart([this, &hardware]() {

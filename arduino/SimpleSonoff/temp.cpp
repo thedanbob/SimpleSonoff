@@ -2,11 +2,11 @@
 #include "temp.h"
 
 namespace SimpleSonoff {
-  Temp::Temp(SimpleSonoff::Hardware* h, SimpleSonoff::MQTTClient* m) :
+  Temp::Temp(SimpleSonoff::Hardware &h, SimpleSonoff::MQTTClient &m) :
     report(false),
     dht(OPT_PIN, DHTTYPE, 11),
-    hardware(h),
-    mqttClient(m)
+    hardware(&h),
+    mqttClient(&m)
   {}
 
   void Temp::doReport() {

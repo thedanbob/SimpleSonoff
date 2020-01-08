@@ -21,14 +21,14 @@ namespace SimpleSonoff {
 
     WiFiClient wifiClient;
     PubSubClient pubSubClient;
-    SimpleSonoff::Hardware* hardware;
+    SimpleSonoff::Hardware *hardware;
     char uid[16];
     bool restart;
     void heartbeat();
-    void callback(const MQTT::Publish& pub);
+    void callback(const MQTT::Publish &pub);
 
     public:
-      MQTTClient(SimpleSonoff::Hardware* h);
+      MQTTClient(SimpleSonoff::Hardware &h);
       char* UID();
       bool connect();
       void loop();

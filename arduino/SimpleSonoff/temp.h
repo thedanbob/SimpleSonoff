@@ -10,11 +10,11 @@ namespace SimpleSonoff {
   class Temp {
     bool report;
     DHT dht;
-    SimpleSonoff::Hardware* hardware;
-    SimpleSonoff::MQTTClient* mqttClient;
+    SimpleSonoff::Hardware *hardware;
+    SimpleSonoff::MQTTClient *mqttClient;
 
     public:
-      Temp(SimpleSonoff::Hardware* h, SimpleSonoff::MQTTClient* m);
+      Temp(SimpleSonoff::Hardware &h, SimpleSonoff::MQTTClient &m);
       void doReport();
       void reportTemp();
   };

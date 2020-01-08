@@ -15,16 +15,16 @@ const char* header = "\n\n--------------  SimpleSonoff_v1.00  --------------";
 bool requestRestart = false;
 unsigned long TasksTimer;
 SimpleSonoff::Hardware hardware;
-SimpleSonoff::MQTTClient mqttClient(&hardware);
+SimpleSonoff::MQTTClient mqttClient(hardware);
 
 #ifdef WS
 #include "wall_switch.h"
-SimpleSonoff::WallSwitch wallSwitch(&hardware);
+SimpleSonoff::WallSwitch wallSwitch(hardware);
 #endif
 
 #if defined(TH) && defined(TEMP)
 #include "temp.h"
-SimpleSonoff::Temp temp(&hardware, &mqttClient);
+SimpleSonoff::Temp temp(hardware, mqttClient);
 #endif
 
 #ifdef ENABLE_OTA_UPDATES

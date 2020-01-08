@@ -10,7 +10,7 @@ namespace SimpleSonoff {
 
     public:
       OTAUpdate();
-      void setup(char uid[8], SimpleSonoff::Hardware hardware);
+      void setup(char uid[8], SimpleSonoff::Hardware &hardware);
       void handle();
       bool inProgress();
   };

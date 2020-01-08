@@ -7,10 +7,10 @@
 namespace SimpleSonoff {
   class WallSwitch {
     bool lastState;
-    SimpleSonoff::Hardware* hardware;
+    SimpleSonoff::Hardware *hardware;
 
     public:
-      WallSwitch(SimpleSonoff::Hardware* h);
+      WallSwitch(SimpleSonoff::Hardware &h);
       void setup();
       void check();
   };

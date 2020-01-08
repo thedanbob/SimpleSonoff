@@ -1,9 +1,9 @@
 #include "wall_switch.h"
 
 namespace SimpleSonoff {
-  WallSwitch::WallSwitch(SimpleSonoff::Hardware* h) :
+  WallSwitch::WallSwitch(SimpleSonoff::Hardware &h) :
     lastState(true),
-    hardware(h)
+    hardware(&h)
   {}
 
   void WallSwitch::setup() {
