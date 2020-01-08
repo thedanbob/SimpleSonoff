@@ -6,7 +6,7 @@
 
 namespace SimpleSonoff {
   class HTTPUpdate {
-    bool update;
+    bool _inProgress;
 
     public:
       HTTPUpdate();

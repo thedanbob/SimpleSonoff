@@ -7,18 +7,18 @@
 
 namespace SimpleSonoff {
   class Hardware {
-    static const int ledPin;
-    static const int btnPin[CHANNELS];
-    static const int relayPin[CHANNELS];
-    static const bool rememberState[CHANNELS];
+    static const int _ledPin;
+    static const int _btnPin[CHANNELS];
+    static const int _relayPin[CHANNELS];
+    static const bool _rememberState[CHANNELS];
 
-    bool sendState[CHANNELS];
-    unsigned long btnCount[CHANNELS];
-    Ticker btnTimer[CHANNELS];
-    bool restart;
+    bool _sendState[CHANNELS];
+    unsigned long _btnCount[CHANNELS];
+    Ticker _btnTimer[CHANNELS];
+    bool _restart;
 
-    void setupChannel(int ch);
-    void buttonHandler(int ch);
+    void _setupChannel(int ch);
+    void _buttonHandler(int ch);
 
     public:
       Hardware();
@@ -32,7 +32,7 @@ namespace SimpleSonoff {
       bool getSendState(int ch);
       void setSendState(int ch);
       bool checkState(int ch);
-      bool requestRestart();
+      bool restart();
   };
 }
 

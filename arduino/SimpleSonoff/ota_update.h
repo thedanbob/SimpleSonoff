@@ -6,7 +6,7 @@
 
 namespace SimpleSonoff {
   class OTAUpdate {
-    bool update;
+    bool _inProgress;
 
     public:
       OTAUpdate();

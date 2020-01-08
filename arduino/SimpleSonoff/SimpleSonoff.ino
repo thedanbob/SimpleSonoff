@@ -12,7 +12,7 @@
 #include <PubSubClient.h>
 
 const char* header = "\n\n--------------  SimpleSonoff_v1.00  --------------";
-bool requestRestart = false;
+bool restart = false;
 unsigned long TasksTimer;
 SimpleSonoff::Hardware hardware;
 SimpleSonoff::MQTTClient mqttClient(hardware);
@@ -49,7 +49,7 @@ void setup() {
   if (!mqttClient.connect()) return;
 
   #ifdef ENABLE_OTA_UPDATES
-  otaUpdate.setup(mqttClient.UID(), hardware);
+  otaUpdate.setup(mqttClient.uid(), hardware);
   #endif
 
   #ifdef ENABLE_HTTP_UPDATES
@@ -87,7 +87,7 @@ void timedTasks() {
   if ((millis() > TasksTimer + (CONNECT_UPD_FREQ*60000)) || (millis() < TasksTimer)) {
     TasksTimer = millis();
     if (!mqttClient.checkAlive())
-      requestRestart = true;
+      restart = true;
 
     #if defined(TH) && defined(TEMP)
     temp.doReport();
@@ -113,8 +113,8 @@ void checkStatus() {
   #endif
   #endif
 
-  requestRestart |= hardware.requestRestart();
-  if (requestRestart) {
+  restart |= hardware.restart();
+  if (restart) {
     hardware.blinkLED(400, 4);
     ESP.restart();
   }

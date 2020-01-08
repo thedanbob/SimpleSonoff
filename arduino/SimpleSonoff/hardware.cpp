@@ -2,126 +2,126 @@
 #include "hardware.h"
 
 namespace SimpleSonoff {
-  const int Hardware::ledPin = LED_PIN;
+  const int Hardware::_ledPin = LED_PIN;
   #ifdef MULTI
-  const int Hardware::btnPin[] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3, BTN_PIN_4};
-  const int Hardware::relayPin[] = {RELAY_PIN_1, RELAY_PIN_2, RELAY_PIN_3, RELAY_PIN_4};
-  const bool Hardware::rememberState[] = {REMEMBER_RELAY_STATE_1, REMEMBER_RELAY_STATE_2, REMEMBER_RELAY_STATE_3, REMEMBER_RELAY_STATE_4};
+  const int Hardware::_btnPin[] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3, BTN_PIN_4};
+  const int Hardware::_relayPin[] = {RELAY_PIN_1, RELAY_PIN_2, RELAY_PIN_3, RELAY_PIN_4};
+  const bool Hardware::_rememberState[] = {REMEMBER_RELAY_STATE_1, REMEMBER_RELAY_STATE_2, REMEMBER_RELAY_STATE_3, REMEMBER_RELAY_STATE_4};
   #else
-  const int Hardware::btnPin[] = {BTN_PIN_1};
-  const int Hardware::relayPin[] = {RELAY_PIN_1};
-  const bool Hardware::rememberState[] = {REMEMBER_RELAY_STATE_1};
+  const int Hardware::_btnPin[] = {BTN_PIN_1};
+  const int Hardware::_relayPin[] = {RELAY_PIN_1};
+  const bool Hardware::_rememberState[] = {REMEMBER_RELAY_STATE_1};
   #endif
 
   Hardware::Hardware() :
-    restart(false),
-    sendState({false}),
-    btnCount({0})
+    _restart(false),
+    _sendState({false}),
+    _btnCount({0})
   {}
 
   void Hardware::setup() {
     EEPROM.begin(4);
-    pinMode(ledPin, OUTPUT);
-    this->setLED(false);
+    pinMode(_ledPin, OUTPUT);
+    setLED(false);
 
-    this->setupChannel(0); // Channel 1
+    _setupChannel(0); // Channel 1
     #ifdef MULTI
     #ifndef DISABLE_CH_2
-    this->setupChannel(1);
+    _setupChannel(1);
     #endif
     #ifndef DISABLE_CH_3
-    this->setupChannel(2);
+    _setupChannel(2);
     #endif
     #ifndef DISABLE_CH_4
-    this->setupChannel(3);
+    _setupChannel(3);
     #endif
     #endif
   }
 
   void Hardware::postSetup() {
-    this->blinkLED(40, 8);
+    blinkLED(40, 8);
     #ifdef ORIG
-    this->setLED(this->getRelay(0));
+    setLED(getRelay(0));
     #else
-    this->setLED(true);
+    setLED(true);
     #endif
   }
 
-  void Hardware::setupChannel(int ch) {
-    pinMode(btnPin[ch], INPUT);
-    pinMode(relayPin[ch], OUTPUT);
-    digitalWrite(relayPin[ch], LOW);
+  void Hardware::_setupChannel(int ch) {
+    pinMode(_btnPin[ch], INPUT);
+    pinMode(_relayPin[ch], OUTPUT);
+    digitalWrite(_relayPin[ch], LOW);
 
-    if (rememberState[ch]) {
-      this->setRelay(ch, EEPROM.read(ch));
+    if (_rememberState[ch]) {
+      setRelay(ch, EEPROM.read(ch));
     }
 
-    this->btnTimer[ch].attach(0.05, std::bind(&Hardware::buttonHandler, this, ch));
+    _btnTimer[ch].attach(0.05, std::bind(&Hardware::_buttonHandler, this, ch));
   }
 
-  void Hardware::buttonHandler(int ch) {
-    if (!digitalRead(btnPin[ch])) {
-      this->btnCount[ch]++;
+  void Hardware::_buttonHandler(int ch) {
+    if (!digitalRead(_btnPin[ch])) {
+      _btnCount[ch]++;
     } else {
-      if (this->btnCount[ch] > 1 && this->btnCount[ch] <= 40) {
-        this->setRelay(ch, !this->getRelay(ch));
+      if (_btnCount[ch] > 1 && _btnCount[ch] <= 40) {
+        setRelay(ch, !getRelay(ch));
       }
-      else if (this->btnCount[ch] > 40) {
+      else if (_btnCount[ch] > 40) {
         Serial.println("\n\nSonoff rebooting, please wait");
-        this->restart = true;
+        _restart = true;
       }
-      this->btnCount[ch] = 0;
+      _btnCount[ch] = 0;
     }
   }
 
   void Hardware::blinkLED(int duration, int n) {
     for(int i = 0; i < n; i++)  {
-      this->setLED(true);
+      setLED(true);
       delay(duration);
-      this->setLED(false);
+      setLED(false);
       delay(duration);
     }
   }
 
   bool Hardware::getLED() {
-    return !digitalRead(ledPin);
+    return !digitalRead(_ledPin);
   }
 
   void Hardware::setLED(bool on) {
-    digitalWrite(ledPin, !on); // Sonoff LED is inverted, HIGH = off
+    digitalWrite(_ledPin, !on); // Sonoff LED is inverted, HIGH = off
   }
 
   bool Hardware::getRelay(int ch) {
-    return digitalRead(relayPin[ch]);
+    return digitalRead(_relayPin[ch]);
   }
 
   void Hardware::setRelay(int ch, bool state) {
     #ifdef ORIG
-    this->setLED(state);
+    setLED(state);
     #endif
-    digitalWrite(relayPin[ch], state);
-    this->setSendState(ch);
+    digitalWrite(_relayPin[ch], state);
+    setSendState(ch);
 
-    if (rememberState[ch]) {
+    if (_rememberState[ch]) {
       EEPROM.write(ch, state);
       EEPROM.commit();
     }
   }
 
   bool Hardware::getSendState(int ch) {
-    return this->sendState[ch];
+    return _sendState[ch];
   }
 
   void Hardware::setSendState(int ch) {
-    this->sendState[ch] = true;
+    _sendState[ch] = true;
   }
 
   bool Hardware::checkState(int ch) {
-    this->sendState[ch] = false;
-    return this->getRelay(ch);
+    _sendState[ch] = false;
+    return getRelay(ch);
   }
 
-  bool Hardware::requestRestart() {
-    return this->restart;
+  bool Hardware::restart() {
+    return _restart;
   }
 }

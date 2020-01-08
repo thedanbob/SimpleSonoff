@@ -4,14 +4,14 @@
 
 namespace SimpleSonoff {
   HTTPUpdate::HTTPUpdate() :
-    update(false)
+    _inProgress(false)
   {}
 
   void HTTPUpdate::setup(SimpleSonoff::Hardware &hardware) {
     ESPhttpUpdate.setLedPin(LED_PIN, LOW);
 
     ESPhttpUpdate.onStart([this, &hardware]() {
-      this->update = true;
+      _inProgress = true;
       hardware.blinkLED(400, 2);
       hardware.setLED(false);
       Serial.println("HTTP update initiated...");
@@ -19,7 +19,7 @@ namespace SimpleSonoff {
 
     ESPhttpUpdate.onEnd([this]() {
       Serial.println("HTTP update done");
-      this->update = false;
+      _inProgress = false;
     });
 
     ESPhttpUpdate.onProgress([&hardware](int progress, int total) {
@@ -31,7 +31,7 @@ namespace SimpleSonoff {
 
     ESPhttpUpdate.onError([this, &hardware](int error) {
       hardware.blinkLED(40, 2);
-      this->update = false;
+      _inProgress = false;
       Serial.printf("HTTP error: [%i] ", error);
       Serial.println(ESPhttpUpdate.getLastErrorString());
     });
@@ -42,6 +42,6 @@ namespace SimpleSonoff {
   }
 
   bool HTTPUpdate::inProgress() {
-    return this->update;
+    return _inProgress;
   }
 }

@@ -2,8 +2,8 @@
 
 namespace SimpleSonoff {
   WallSwitch::WallSwitch(SimpleSonoff::Hardware &h) :
-    lastState(true),
-    hardware(&h)
+    _lastState(true),
+    _hardware(&h)
   {}
 
   void WallSwitch::setup() {
@@ -12,9 +12,9 @@ namespace SimpleSonoff {
 
   void WallSwitch::check() {
     bool state = digitalRead(OPT_PIN);
-    if (state != this->lastState) {
-      hardware->setRelay(0, !hardware->getRelay(0));
+    if (state != _lastState) {
+      _hardware->setRelay(0, !_hardware->getRelay(0));
     }
-    this->lastState = state;
+    _lastState = state;
   }
 }

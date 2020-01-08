@@ -6,8 +6,8 @@
 
 namespace SimpleSonoff {
   class WallSwitch {
-    bool lastState;
-    SimpleSonoff::Hardware *hardware;
+    bool _lastState;
+    SimpleSonoff::Hardware *_hardware;
 
     public:
       WallSwitch(SimpleSonoff::Hardware &h);

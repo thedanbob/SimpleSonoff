@@ -4,14 +4,14 @@
 
 namespace SimpleSonoff {
   OTAUpdate::OTAUpdate() :
-    update(false)
+    _inProgress(false)
   {}
 
   void OTAUpdate::setup(char uid[8], SimpleSonoff::Hardware &hardware) {
     ArduinoOTA.setHostname(uid);
 
     ArduinoOTA.onStart([this, &hardware]() {
-      this->update = true;
+      _inProgress = true;
       hardware.blinkLED(400, 2);
       hardware.setLED(false);
       Serial.println("OTA update initiated...");
@@ -19,7 +19,7 @@ namespace SimpleSonoff {
 
     ArduinoOTA.onEnd([this]() {
       Serial.println("\nOTA update done");
-      this->update = false;
+      _inProgress = false;
     });
 
     ArduinoOTA.onProgress([&hardware](unsigned int progress, unsigned int total) {
@@ -31,7 +31,7 @@ namespace SimpleSonoff {
 
     ArduinoOTA.onError([this, &hardware](ota_error_t error) {
       hardware.blinkLED(40, 2);
-      this->update = false;
+      _inProgress = false;
       Serial.printf("OTA error: [%u] ", error);
       if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
       else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
@@ -48,6 +48,6 @@ namespace SimpleSonoff {
   }
 
   bool OTAUpdate::inProgress() {
-    return this->update;
+    return _inProgress;
   }
 }

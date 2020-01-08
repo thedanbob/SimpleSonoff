@@ -9,21 +9,22 @@
 
 namespace SimpleSonoff {
   class MQTTClient {
-    static const String version;
-    static const String cmdTopic[CHANNELS];
-    static const String statTopic[CHANNELS];
+    static const String _version;
+    static const String _cmdTopic[CHANNELS];
+    static const String _statTopic[CHANNELS];
 
-    WiFiClient wifiClient;
-    PubSubClient pubSubClient;
-    SimpleSonoff::Hardware *hardware;
-    char uid[16];
-    bool restart;
-    void heartbeat();
-    void callback(const MQTT::Publish &pub);
+    WiFiClient _wifiClient;
+    PubSubClient _pubSubClient;
+    SimpleSonoff::Hardware *_hardware;
+
+    char _uid[16];
+    bool _restart;
+    void _heartbeat();
+    void _callback(const MQTT::Publish &pub);
 
     public:
       MQTTClient(SimpleSonoff::Hardware &h);
-      char* UID();
+      char* uid();
       bool connect();
       void loop();
       bool checkAlive();
