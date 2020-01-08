@@ -6,7 +6,7 @@
 
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>
+#include "src/pubsubclient/PubSubClient.h"
 #include "config.h"
 #include "src/mqtt_client.h"
 #include "src/hardware.h"

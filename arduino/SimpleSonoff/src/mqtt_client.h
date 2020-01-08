@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <WiFiClient.h>
-#include <PubSubClient.h>
+#include "pubsubclient/PubSubClient.h"
 #include "defines.h"
 #include "hardware.h"
 
