@@ -15,8 +15,8 @@ namespace SimpleSonoff {
 
   Hardware::Hardware() :
     restart(false),
-    sendState({false, false, false, false}),
-    btnCount({0, 0, 0, 0})
+    sendState({false}),
+    btnCount({0})
   {}
 
   void Hardware::setup() {

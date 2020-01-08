@@ -3,6 +3,12 @@
 
 #include "config.h"
 
+#ifdef MULTI
+#define CHANNELS 4
+#else
+#define CHANNELS 1
+#endif
+
 #define LED_PIN 13
 #define OPT_PIN 14
 #define BTN_PIN_1 0

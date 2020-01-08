@@ -10,14 +10,8 @@
 namespace SimpleSonoff {
   class MQTTClient {
     static const String version;
-
-    #if defined(MULTI)
-    static const String cmdTopic[4];
-    static const String statTopic[4];
-    #else
-    static const String cmdTopic[1];
-    static const String statTopic[1];
-    #endif
+    static const String cmdTopic[CHANNELS];
+    static const String statTopic[CHANNELS];
 
     WiFiClient wifiClient;
     PubSubClient pubSubClient;

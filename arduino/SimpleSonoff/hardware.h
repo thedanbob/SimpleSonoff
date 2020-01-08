@@ -8,19 +8,13 @@
 namespace SimpleSonoff {
   class Hardware {
     static const int ledPin;
-    #ifdef MULTI
-    static const int btnPin[4];
-    static const int relayPin[4];
-    static const bool rememberState[4];
-    #else
-    static const int btnPin[1];
-    static const int relayPin[1];
-    static const bool rememberState[1];
-    #endif
+    static const int btnPin[CHANNELS];
+    static const int relayPin[CHANNELS];
+    static const bool rememberState[CHANNELS];
 
-    bool sendState[4];
-    unsigned long btnCount[4];
-    Ticker btnTimer[4];
+    bool sendState[CHANNELS];
+    unsigned long btnCount[CHANNELS];
+    Ticker btnTimer[CHANNELS];
     bool restart;
 
     void setupChannel(int ch);
