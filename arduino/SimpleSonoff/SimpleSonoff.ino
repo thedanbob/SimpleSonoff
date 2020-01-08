@@ -1,15 +1,16 @@
 /*
-  ======================================================================================
-      ATTENTION !!!!!! DO NOT CHANGE ANYTHING BELOW. UPDATE YOUR DETAILS IN CONFIG.H
-  ======================================================================================
+  ===================================================================================
+    ATTENTION !!!!!! DO NOT CHANGE ANYTHING BELOW. UPDATE YOUR SETTINGS IN CONFIG.H
+  ===================================================================================
 */
 
-#include "config.h"
-#include "mqtt_client.h"
-#include "hardware.h"
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include "config.h"
+#include "src/mqtt_client.h"
+#include "src/hardware.h"
+
 
 const char* header = "\n\n--------------  SimpleSonoff_v1.00  --------------";
 bool restart = false;
@@ -18,22 +19,22 @@ SimpleSonoff::Hardware hardware;
 SimpleSonoff::MQTTClient mqttClient(hardware);
 
 #ifdef WS
-#include "wall_switch.h"
+#include "src/wall_switch.h"
 SimpleSonoff::WallSwitch wallSwitch(hardware);
 #endif
 
 #if defined(TH) && defined(TEMP)
-#include "temp.h"
+#include "src/temp.h"
 SimpleSonoff::Temp temp(hardware, mqttClient);
 #endif
 
 #ifdef ENABLE_OTA_UPDATES
-#include "ota_update.h"
+#include "src/ota_update.h"
 SimpleSonoff::OTAUpdate otaUpdate;
 #endif
 
 #ifdef ENABLE_HTTP_UPDATES
-#include "http_update.h"
+#include "src/http_update.h"
 SimpleSonoff::HTTPUpdate httpUpdate;
 #endif
 

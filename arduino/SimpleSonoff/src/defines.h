@@ -1,7 +1,7 @@
 #ifndef SIMPLE_SONOFF_DEFINES_H
 #define SIMPLE_SONOFF_DEFINES_H
 
-#include "config.h"
+#include "../config.h"
 
 #ifdef MULTI
 #define CHANNELS 4
