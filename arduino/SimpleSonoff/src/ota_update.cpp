@@ -7,7 +7,7 @@ namespace SimpleSonoff {
     _inProgress(false)
   {}
 
-  void OTAUpdate::setup(char uid[8], SimpleSonoff::Hardware &hardware) {
+  void OTAUpdate::setup(char uid[16], SimpleSonoff::Hardware &hardware) {
     ArduinoOTA.setHostname(uid);
 
     ArduinoOTA.onStart([this, &hardware]() {

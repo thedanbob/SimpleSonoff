@@ -4,7 +4,7 @@
 namespace SimpleSonoff {
   const String MQTTClient::_version = "ss_v1.00";
 
-  #if defined(MULTI)
+  #ifdef MULTI
   const String MQTTClient::_cmdTopic[] = {MQTT_BASE_TOPIC"/ch1", MQTT_BASE_TOPIC"/ch2", MQTT_BASE_TOPIC"/ch3", MQTT_BASE_TOPIC"/ch4"};
   const String MQTTClient::_statTopic[] = {MQTT_BASE_TOPIC"/ch1/stat", MQTT_BASE_TOPIC"/ch2/stat", MQTT_BASE_TOPIC"/ch3/stat", MQTT_BASE_TOPIC"/ch4/stat"};
   #else
@@ -139,9 +139,10 @@ namespace SimpleSonoff {
     }
 
     int ch = 0;
-    String topic = pub.topic();
+
     #ifdef MULTI
-    if (topic == _cmdTopic[1]) ch = 0;
+    String topic = pub.topic();
+    if (topic == _cmdTopic[0]) ch = 0;
     #ifndef DISABLE_CH_2
     else if (topic == _cmdTopic[1]) ch = 1;
     #endif
