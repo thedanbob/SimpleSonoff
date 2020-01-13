@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <WiFiClient.h>
 #include "pubsubclient/PubSubClient.h"
-#include "defines.h"
+#include "../defines.h"
 #include "hardware.h"
 
 namespace SimpleSonoff {

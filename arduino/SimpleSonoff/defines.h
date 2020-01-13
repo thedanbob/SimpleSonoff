@@ -1,7 +1,13 @@
+/*
+  ===================================================================================================
+    DON'T CHANGE ANYTHING BELOW UNLESS YOU KNOW WHAT YOU'RE DOING. UPDATE YOUR SETTINGS IN CONFIG.H
+  ===================================================================================================
+*/
+
 #ifndef SIMPLE_SONOFF_DEFINES_H
 #define SIMPLE_SONOFF_DEFINES_H
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef MULTI
 #define CHANNELS 4

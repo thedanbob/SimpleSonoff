@@ -1,7 +1,7 @@
 #ifndef SIMPLE_SONOFF_WALL_SWITCH_H
 #define SIMPLE_SONOFF_WALL_SWITCH_H
 
-#include "defines.h"
+#include "../defines.h"
 #include "hardware.h"
 
 namespace SimpleSonoff {

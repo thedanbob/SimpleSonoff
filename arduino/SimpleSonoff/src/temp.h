@@ -2,7 +2,7 @@
 #define SIMPLE_SONOFF_TEMP_H
 
 #include <DHT.h>
-#include "defines.h"
+#include "../defines.h"
 #include "hardware.h"
 #include "mqtt_client.h"
 

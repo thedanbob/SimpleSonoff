@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Ticker.h>
-#include "defines.h"
+#include "../defines.h"
 
 namespace SimpleSonoff {
   class Hardware {
