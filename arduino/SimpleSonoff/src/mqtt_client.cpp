@@ -68,15 +68,15 @@ namespace SimpleSonoff {
     MQTT::Subscribe subs(_cmdTopic[0], MQTT_QOS);
     #ifdef MULTI
     #ifndef DISABLE_CH_2
-    Serial.print("Subscribing to topic "); Serial.println(_cmdTopic[0]);
+    Serial.print("Subscribing to topic "); Serial.println(_cmdTopic[1]);
     subs.add_topic(_cmdTopic[1], MQTT_QOS);
     #endif
     #ifndef DISABLE_CH_3
-    Serial.print("Subscribing to topic "); Serial.println(_cmdTopic[0]);
+    Serial.print("Subscribing to topic "); Serial.println(_cmdTopic[2]);
     subs.add_topic(_cmdTopic[2], MQTT_QOS);
     #endif
     #ifndef DISABLE_CH_4
-    Serial.print("Subscribing to topic "); Serial.println(_cmdTopic[0]);
+    Serial.print("Subscribing to topic "); Serial.println(_cmdTopic[3]);
     subs.add_topic(_cmdTopic[3], MQTT_QOS);
     #endif
     #endif
